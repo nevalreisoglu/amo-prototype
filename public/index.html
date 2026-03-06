@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autonomous Marketing Operations — Live Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#07090f;
+  --surface:#0d111e;
+  --surface2:#121828;
+  --border:#1e2740;
+  --border2:#2a3560;
+  --orange:#f26522;
+  --orange2:#f7923a;
+  --orange-dim:rgba(242,101,34,0.12);
+  --green:#00e5a0;
+  --green-dim:rgba(0,229,160,0.1);
+  --blue:#4a9eff;
+  --blue-dim:rgba(74,158,255,0.1);
+  --yellow:#ffd166;
+  --red:#ff5e6c;
+  --text:#e8eaf2;
+  --text2:#8892b0;
+  --text3:#4a5580;
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Syne',sans-serif;
+  --body:'Manrope',sans-serif;
+}
+
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* Ambient background */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(242,101,34,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 90% 80%,rgba(74,158,255,0.03) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
+
+/* ─── LAYOUT ─── */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;position:relative;z-index:1}
+
+/* ─── SIDEBAR ─── */
+aside{
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  padding:0;
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-tag{
+  font-family:var(--display);font-size:9px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--orange);
+  margin-bottom:4px;
+}
+.logo-title{font-family:var(--display);font-size:16px;font-weight:800;color:var(--text);line-height:1.2}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+.sidebar-section{padding:16px 12px 8px;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;margin:1px 8px;border-radius:8px;
+  font-size:12px;font-weight:500;color:var(--text2);
+  cursor:pointer;transition:all 0.15s;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(242,101,34,0.2)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.nav-item.active .nav-dot{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+
+/* Prospect mini list */
+.prospect-list{padding:8px;flex:1}
+.prospect-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:8px;
+  cursor:pointer;transition:all 0.15s;
+  border:1px solid transparent;
+}
+.prospect-item:hover{background:var(--surface2);border-color:var(--border)}
+.prospect-item.selected{background:rgba(242,101,34,0.08);border-color:rgba(242,101,34,0.25)}
+.p-avatar{
+  width:30px;height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:11px;font-weight:800;
+  flex-shrink:0;
+}
+.p-info{flex:1;min-width:0}
+.p-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-company{font-size:10px;color:var(--text3)}
+.p-score-badge{
+  font-family:var(--mono);font-size:10px;font-weight:500;
+  padding:2px 6px;border-radius:4px;flex-shrink:0;
+}
+
+.sidebar-bottom{
+  padding:16px;border-top:1px solid var(--border);
+  font-size:11px;color:var(--text3);
+}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:blink 2s infinite}
+
+/* ─── MAIN ─── */
+main{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+
+/* Top bar */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  position:sticky;top:0;z-index:100;
+}
+.topbar-title{font-family:var(--display);font-size:18px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-stat{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:6px 14px;
+  font-size:11px;color:var(--text2);
+}
+.topbar-stat strong{color:var(--text);font-family:var(--mono)}
+
+/* ─── CONTENT PANELS ─── */
+.content{flex:1;padding:28px 32px;display:flex;flex-direction:column;gap:24px}
+
+/* Panel header */
+.panel-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+.kpi-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+  transition:border-color 0.2s;
+  position:relative;overflow:hidden;
+}
+.kpi-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  opacity:0;transition:opacity 0.3s;
+}
+.kpi-card.orange::after{background:linear-gradient(90deg,var(--orange),var(--orange2));opacity:1}
+.kpi-card.green::after{background:linear-gradient(90deg,var(--green),#7fffb2);opacity:1}
+.kpi-card.blue::after{background:linear-gradient(90deg,var(--blue),#7cb9ff);opacity:1}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.kpi-value{font-family:var(--display);font-size:36px;font-weight:800;line-height:1;margin-bottom:6px}
+.kpi-value.orange-text{color:var(--orange)}
+.kpi-value.green-text{color:var(--green)}
+.kpi-value.blue-text{color:var(--blue)}
+.kpi-sub{font-size:11px;color:var(--text3)}
+.kpi-sub .up{color:var(--green)}
+.kpi-sub .dn{color:var(--yellow)}
+
+/* ─── DEMO CONTROL ─── */
+.demo-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:4px;
+}
+.section-title{font-family:var(--display);font-size:14px;font-weight:700;letter-spacing:0.3px}
+.section-title span{color:var(--orange)}
+
+/* ─── PROSPECT TABLE ─── */
+.table-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+}
+.table-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);
+}
+.table-toolbar-left{display:flex;align-items:center;gap:12px}
+.tbl-title{font-size:13px;font-weight:600}
+.tbl-count{
+  background:var(--orange-dim);color:var(--orange);
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
+  font-family:var(--mono);
+}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:10px 16px;text-align:left;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text3);border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.01);
+}
+tbody tr{
+  border-bottom:1px solid var(--border);
+  transition:background 0.15s;cursor:pointer;
+}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody tr.highlighted{background:rgba(242,101,34,0.06)}
+td{padding:12px 16px;font-size:12px;color:var(--text2)}
+td:first-child{color:var(--text);font-weight:500}
+td.mono{font-family:var(--mono);font-size:11px}
+
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:4px;
+  font-size:10px;font-weight:600;
+}
+.badge-ent{background:rgba(74,158,255,0.12);color:var(--blue)}
+.badge-sme{background:rgba(255,209,102,0.12);color:var(--yellow)}
+.score-bar-wrap{display:flex;align-items:center;gap:8px}
+.score-mini{width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.score-mini-fill{height:100%;border-radius:2px;transition:width 0.8s ease}
+
+/* ─── EVENT TRIGGER PANEL ─── */
+.event-panel{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+}
+.event-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+}
+.event-card-title{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.event-card-title svg{color:var(--orange)}
+
+.event-btn-group{display:flex;flex-direction:column;gap:8px}
+.event-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;text-align:left;width:100%;
+}
+.event-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-dim)}
+.event-btn.fired{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+.event-icon{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.05);font-size:13px;flex-shrink:0;
+}
+.event-info{flex:1}
+.event-name{font-size:12px;font-weight:600}
+.event-pts{font-size:10px;margin-top:1px;opacity:0.7}
+
+/* ─── PIPELINE FLOW ─── */
+.pipeline-flow{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:24px;
+}
+
+.flow-steps{
+  display:flex;align-items:flex-start;
+  gap:0;position:relative;
+}
+.flow-steps::before{
+  content:'';
+  position:absolute;top:20px;left:0;right:0;height:1px;
+  background:repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 6px, transparent 6px, transparent 14px);
+}
+
+.flow-step{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:1;
+}
+.flow-node{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;margin-bottom:10px;
+  border:2px solid var(--border);background:var(--bg);
+  transition:all 0.4s;position:relative;
+}
+.flow-node.idle{color:var(--text3)}
+.flow-node.running{
+  border-color:var(--orange);color:var(--orange);
+  box-shadow:0 0 0 4px rgba(242,101,34,0.15);
+  animation:node-run 1s ease-in-out infinite;
+}
+.flow-node.done{
+  border-color:var(--green);background:rgba(0,229,160,0.1);
+  color:var(--green);
+}
+.flow-node.done::after{
+  content:'✓';
+  position:absolute;
+  font-size:16px;font-weight:700;
+  color:var(--green);
+}
+.flow-label{font-size:10px;font-weight:600;text-align:center;color:var(--text3);line-height:1.4;max-width:70px}
+.flow-sublabel{font-size:9px;color:var(--text3);text-align:center;margin-top:2px;font-family:var(--mono)}
+.flow-step.active .flow-label{color:var(--orange)}
+.flow-step.complete .flow-label{color:var(--green)}
+
+@keyframes node-run{
+  0%,100%{box-shadow:0 0 0 4px rgba(242,101,34,0.15)}
+  50%{box-shadow:0 0 0 8px rgba(242,101,34,0.05),0 0 20px rgba(242,101,34,0.2)}
+}
+
+/* ─── LOG TERMINAL ─── */
+.log-terminal{
+  background:#040508;border:1px solid var(--border);
+  border-radius:12px;padding:0;overflow:hidden;
+  font-family:var(--mono);
+}
+.log-header{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.log-dots{display:flex;gap:6px}
+.log-dot{width:10px;height:10px;border-radius:50%}
+.log-title{font-size:11px;color:var(--text3);margin-left:4px}
+.log-body{padding:14px 16px;min-height:120px;max-height:200px;overflow-y:auto}
+.log-line{
+  font-size:11px;line-height:1.8;
+  display:flex;gap:10px;
+  animation:logIn 0.3s ease;
+}
+@keyframes logIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.log-time{color:var(--text3);flex-shrink:0;user-select:none}
+.log-tag{padding:0 5px;border-radius:3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
+.tag-info{background:rgba(74,158,255,0.15);color:var(--blue)}
+.tag-ai{background:rgba(242,101,34,0.15);color:var(--orange)}
+.tag-ok{background:rgba(0,229,160,0.15);color:var(--green)}
+.tag-warn{background:rgba(255,209,102,0.15);color:var(--yellow)}
+.log-msg{color:var(--text2)}
+.log-msg strong{color:var(--text)}
+.log-cursor{display:inline-block;width:7px;height:12px;background:var(--orange);opacity:0.8;margin-left:4px;animation:blink 1s step-end infinite;vertical-align:middle}
+
+/* ─── RESULT CARDS ─── */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+.result-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+  transition:all 0.4s;
+  opacity:0.35;filter:grayscale(1);
+}
+.result-card.revealed{opacity:1;filter:none}
+
+.result-card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.result-card-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px}
+.result-icon{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.icon-lead{background:rgba(74,158,255,0.12)}
+.icon-campaign{background:var(--orange-dim)}
+
+.result-field{margin-bottom:10px}
+.result-field:last-child{margin-bottom:0}
+.rf-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.rf-value{font-size:12px;color:var(--text);font-weight:500}
+.rf-value.mono{font-family:var(--mono);color:var(--blue)}
+.rf-value.orange{color:var(--orange)}
+.rf-value.green{color:var(--green)}
+
+.score-gauge{
+  position:relative;height:8px;background:var(--border);
+  border-radius:4px;overflow:hidden;margin-top:6px;
+}
+.score-gauge-fill{
+  height:100%;border-radius:4px;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  transition:width 1.2s cubic-bezier(.4,0,.2,1);
+  width:0%;
+}
+
+.email-preview{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:12px;margin-top:8px;
+  font-size:11px;line-height:1.7;color:var(--text2);
+}
+.email-subject{font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ─── RESET BTN ─── */
+.btn-primary{
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
+  color:white;border:none;border-radius:8px;
+  padding:10px 20px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;font-family:var(--body);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(242,101,34,0.35)}
+.btn-secondary{
+  background:var(--surface2);color:var(--text2);
+  border:1px solid var(--border);border-radius:8px;
+  padding:9px 16px;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;font-family:var(--body);
+}
+.btn-secondary:hover{border-color:var(--border2);color:var(--text)}
+
+/* SCORE BREAKDOWN */
+.score-breakdown{margin-top:10px}
+.sb-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sb-label{font-size:10px;color:var(--text3);width:130px;flex-shrink:0}
+.sb-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.sb-fill{height:100%;border-radius:2px;background:var(--orange);transition:width 1s ease}
+.sb-val{font-family:var(--mono);font-size:10px;color:var(--text2);width:24px;text-align:right;flex-shrink:0}
+
+/* ANIMATIONS */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp 0.5s ease forwards}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* SELECTED PROSPECT HIGHLIGHT */
+.selected-prospect-banner{
+  background:linear-gradient(135deg,var(--orange-dim),rgba(242,101,34,0.06));
+  border:1px solid rgba(242,101,34,0.25);
+  border-radius:10px;padding:12px 16px;
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:0;
+  transition:all 0.3s;
+}
+.spb-avatar{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:13px;font-weight:800;
+  flex-shrink:0;
+}
+.spb-info{flex:1}
+.spb-name{font-size:13px;font-weight:600}
+.spb-meta{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* NOTIFICATION TOAST */
+.toast{
+  position:fixed;top:24px;right:24px;z-index:9999;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:14px 18px;
+  font-size:12px;min-width:280px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  display:none;
+  animation:slideIn 0.3s ease;
+}
+.toast.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast-header{font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.toast-body{font-size:11px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-header" id="toast-header"></div>
+  <div class="toast-body" id="toast-body"></div>
+</div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="sidebar-logo">
+      <div class="logo-tag">Autonomous Marketing Ops</div>
+      <div class="logo-title">AMO Platform</div>
+      <div class="logo-sub">Prospect → Customer Engine</div>
+    </div>
+
+    <div class="sidebar-section">Navigation</div>
+    <div class="nav-item active"><div class="nav-dot"></div>Live Demo</div>
+    <div class="nav-item"><div class="nav-dot"></div>Analytics</div>
+    <div class="nav-item"><div class="nav-dot"></div>Campaign Library</div>
+    <div class="nav-item"><div class="nav-dot"></div>Settings</div>
+
+    <div class="sidebar-section" style="margin-top:8px">Prospect Pool</div>
+    <div class="prospect-list" id="sidebar-prospects"></div>
+
+    <div class="sidebar-bottom">
+      <span class="status-dot"></span>System Online &mdash; v2.4.1
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="topbar">
+      <div class="topbar-title">Live Acquisition <span style="color:var(--orange)">Demo</span></div>
+      <div class="topbar-right">
+        <div class="topbar-stat">Active Prospects: <strong id="stat-prospects">6</strong></div>
+        <div class="topbar-stat">Campaigns Fired: <strong id="stat-campaigns" style="color:var(--orange)">0</strong></div>
+        <div class="topbar-stat">Converted: <strong id="stat-converted" style="color:var(--green)">0</strong></div>
+        <button class="btn-secondary" onclick="resetAll()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI ROW -->
+      <div class="panel-row">
+        <div class="kpi-card orange">
+          <div class="kpi-label">Avg. Lead Score</div>
+          <div class="kpi-value orange-text" id="kpi-score">—</div>
+          <div class="kpi-sub">Select a prospect to score</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Qualification</div>
+          <div class="kpi-value green-text" id="kpi-qual">—</div>
+          <div class="kpi-sub" id="kpi-qual-sub">Awaiting AI scoring</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-label">Recommended Action</div>
+          <div class="kpi-value" style="font-size:18px;padding-top:8px" id="kpi-action">—</div>
+          <div class="kpi-sub" id="kpi-action-sub">No event triggered yet</div>
+        </div>
+      </div>
+
+      <!-- PROSPECT TABLE -->
+      <div>
+        <div class="demo-header">
+          <div class="section-title">① Select <span>Prospect</span></div>
+        </div>
+        <div class="table-wrap" style="margin-top:10px">
+          <div class="table-toolbar">
+            <div class="table-toolbar-left">
+              <span class="tbl-title">Prospect Dataset</span>
+              <span class="tbl-count" id="tbl-count">6 records</span>
+            </div>
+            <span style="font-size:11px;color:var(--text3)">Click a row to select prospect</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Company</th>
+                <th>Size</th>
+                <th>Industry</th>
+                <th>Interest</th>
+                <th>Behavior</th>
+                <th>Base Score</th>
+              </tr>
+            </thead>
+            <tbody id="prospect-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EVENT TRIGGER -->
+      <div>
+        <div class="demo-header">
+          <div class="section-title">② Trigger <span>Event</span></div>
+          <div id="selected-banner" style="display:none"></div>
+        </div>
+        <div class="event-panel" style="margin-top:10px">
+          <div class="event-card">
+            <div class="event-card-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Inbound Events
+            </div>
+            <div class="event-btn-group">
+              <button class="event-btn" onclick="fireEvent('whitepaper',30,'📄')">
+                <div class="event-icon">📄</div>
+                <div class="event-info">
+                  <div class="event-name">Downloaded Whitepaper</div>
+                  <div class="event-pts">+30 score points</div>
+                </div>
+              </button>
+              <button class="event-btn" onclick="fireEvent('pricing',50,'💰')">
+                <div class="event-icon">💰</div>
+                <div class="event-info">
+                  <div class="event-name">Visited Pricing Page</div>
+                  <div class="event-pts">+50 score points</div>
+                </div>
+              </button>
+              <button class="event-btn" onclick="fireEvent('demo',70,'🎯')">
+                <div class="event-icon">🎯</div>
+                <div class="event-info">
+                  <div class="event-name">Requested Demo</div>
+                  <div class="event-pts">+70 score points</div>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="event-card">
+            <div class="event-card-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Engagement Events
+            </div>
+            <div class="event-btn-group">
+              <button class="event-btn" onclick="fireEvent('webinar',25,'🎓')">
+                <div class="event-icon">🎓</div>
+                <div class="event-info">
+                  <div class="event-name">Attended Webinar</div>
+                  <div class="event-pts">+25 score points</div>
+                </div>
+              </button>
+              <button class="event-btn" onclick="fireEvent('email',15,'✉️')">
+                <div class="event-icon">✉️</div>
+                <div class="event-info">
+                  <div class="event-name">Opened Email Campaign</div>
+                  <div class="event-pts">+15 score points</div>
+                </div>
+              </button>
+              <button class="event-btn" onclick="fireEvent('contact',60,'📞')">
+                <div class="event-icon">📞</div>
+                <div class="event-info">
+                  <div class="event-name">Contact Sales Form</div>
+                  <div class="event-pts">+60 score points</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIPELINE FLOW -->
+      <div>
+        <div class="section-title" style="margin-bottom:12px">③ Autonomous <span>Pipeline</span></div>
+        <div class="pipeline-flow">
+          <div class="flow-steps" id="flow-steps">
+            <div class="flow-step" id="step-0">
+              <div class="flow-node idle" id="node-0">📥</div>
+              <div class="flow-label">Prospect<br>Captured</div>
+              <div class="flow-sublabel" id="sub-0">—</div>
+            </div>
+            <div class="flow-step" id="step-1">
+              <div class="flow-node idle" id="node-1">⚡</div>
+              <div class="flow-label">Event<br>Triggered</div>
+              <div class="flow-sublabel" id="sub-1">—</div>
+            </div>
+            <div class="flow-step" id="step-2">
+              <div class="flow-node idle" id="node-2">🧠</div>
+              <div class="flow-label">AI Lead<br>Scoring</div>
+              <div class="flow-sublabel" id="sub-2">—</div>
+            </div>
+            <div class="flow-step" id="step-3">
+              <div class="flow-node idle" id="node-3">📊</div>
+              <div class="flow-label">Campaign<br>Selected</div>
+              <div class="flow-sublabel" id="sub-3">—</div>
+            </div>
+            <div class="flow-step" id="step-4">
+              <div class="flow-node idle" id="node-4">🚀</div>
+              <div class="flow-label">Campaign<br>Executed</div>
+              <div class="flow-sublabel" id="sub-4">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOG TERMINAL -->
+      <div>
+        <div class="section-title" style="margin-bottom:10px">④ System <span>Log</span></div>
+        <div class="log-terminal">
+          <div class="log-header">
+            <div class="log-dots">
+              <div class="log-dot" style="background:#ff5f57"></div>
+              <div class="log-dot" style="background:#febc2e"></div>
+              <div class="log-dot" style="background:#28c840"></div>
+            </div>
+            <div class="log-title">amo-engine · autonomous-pipeline.log</div>
+          </div>
+          <div class="log-body" id="log-body">
+            <div class="log-line">
+              <span class="log-time">00:00:00</span>
+              <span class="log-tag tag-info">SYS</span>
+              <span class="log-msg">AMO Engine initialized. Awaiting event trigger...<span class="log-cursor"></span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div>
+        <div class="section-title" style="margin-bottom:12px">⑤ Execution <span>Results</span></div>
+        <div class="result-grid">
+          <div class="result-card" id="lead-card">
+            <div class="result-card-header">
+              <div class="result-card-title">
+                <div class="result-icon icon-lead">👤</div>
+                Lead Management
+              </div>
+              <span class="badge" id="lead-status-badge" style="background:var(--blue-dim);color:var(--blue);display:none">NEW</span>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Lead ID</div>
+              <div class="rf-value mono" id="res-lead-id">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Company</div>
+              <div class="rf-value" id="res-company">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Status</div>
+              <div class="rf-value green" id="res-status">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Assigned Owner</div>
+              <div class="rf-value" id="res-owner">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Score Breakdown</div>
+              <div class="score-breakdown" id="score-breakdown">
+                <div class="sb-row"><span class="sb-label">Company Size</span><div class="sb-bar"><div class="sb-fill" id="sb-size" style="width:0%"></div></div><span class="sb-val" id="sbv-size">0</span></div>
+                <div class="sb-row"><span class="sb-label">Industry Fit</span><div class="sb-bar"><div class="sb-fill" id="sb-ind" style="width:0%"></div></div><span class="sb-val" id="sbv-ind">0</span></div>
+                <div class="sb-row"><span class="sb-label">Product Interest</span><div class="sb-bar"><div class="sb-fill" id="sb-prod" style="width:0%"></div></div><span class="sb-val" id="sbv-prod">0</span></div>
+                <div class="sb-row"><span class="sb-label">Behavioral Signal</span><div class="sb-bar"><div class="sb-fill" id="sb-beh" style="width:0%"></div></div><span class="sb-val" id="sbv-beh">0</span></div>
+              </div>
+              <div style="margin-top:8px">
+                <div class="score-gauge"><div class="score-gauge-fill" id="score-gauge-fill"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:4px">
+                  <span style="font-size:9px;color:var(--text3)">Total Score</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--orange)" id="total-score-display">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-card" id="campaign-card">
+            <div class="result-card-header">
+              <div class="result-card-title">
+                <div class="result-icon icon-campaign">📢</div>
+                Campaign Management
+              </div>
+              <span class="badge" id="camp-status-badge" style="background:var(--orange-dim);color:var(--orange);display:none">AUTO</span>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Campaign Name</div>
+              <div class="rf-value orange" id="res-campaign">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Campaign Type</div>
+              <div class="rf-value" id="res-camp-type">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Channel</div>
+              <div class="rf-value" id="res-channel">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Priority</div>
+              <div class="rf-value" id="res-priority">—</div>
+            </div>
+            <div class="result-field">
+              <div class="rf-label">Email Preview</div>
+              <div class="email-preview" id="email-preview" style="display:none">
+                <div class="email-subject" id="email-subject">—</div>
+                <div id="email-body">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────
+const prospects = [
+  {id:'P-1001',name:'Ahmet Yılmaz',company:'TechRetail A.Ş.',size:'SME',industry:'Retail',product:'Fiber',behavior:'Website Visit',sizeScore:20,indScore:15,prodScore:25,behScore:10},
+  {id:'P-1002',name:'Sarah Mitchell',company:'GlobalFinance Corp',size:'Enterprise',industry:'Finance',product:'Cloud',behavior:'Pricing Page',sizeScore:40,indScore:30,prodScore:35,behScore:25},
+  {id:'P-1003',name:'Marco Rossi',company:'LogiFlow Ltd',size:'SME',industry:'Logistics',product:'IoT',behavior:'None',sizeScore:20,indScore:20,prodScore:20,behScore:0},
+  {id:'P-1004',name:'Zeynep Kaya',company:'MegaTelekom',size:'Enterprise',industry:'Telecom',product:'Fiber',behavior:'Demo Request',sizeScore:40,indScore:35,prodScore:30,behScore:40},
+  {id:'P-1005',name:'James Cooper',company:'HealthTech Inc',size:'Mid-Market',industry:'Healthcare',product:'Cloud',behavior:'Webinar',sizeScore:30,indScore:25,prodScore:30,behScore:15},
+  {id:'P-1006',name:'Fatma Demir',company:'EduSmart',size:'SME',industry:'Education',product:'IoT',behavior:'Email Open',sizeScore:20,indScore:10,prodScore:15,behScore:8},
+];
+
+const avatarColors=[
+  ['#f26522','#7a3010'],['#4a9eff','#1a3a6a'],['#00e5a0','#006644'],
+  ['#ffd166','#7a6010'],['#b96eff','#4a2070'],['#ff7eb3','#7a2040']
+];
+
+const campaigns={
+  high:{
+    name:'Enterprise Acquisition Campaign',type:'Acquisition',channel:'Email + LinkedIn + SDR Call',priority:'🔴 High Priority',
+    subject:'Transform Your Business with Enterprise-Grade Solutions',
+    body:"Dear {name},\n\nOur AI has identified your company as an ideal fit for our Enterprise solutions. Based on your recent activity, we'd like to schedule a personalized executive briefing.\n\nLet's discuss how we can accelerate your digital transformation."
+  },
+  mid:{
+    name:'Nurturing Journey — Mid-Market',type:'Nurture',channel:'Email Sequence',priority:'🟡 Medium Priority',
+    subject:'Discover How {company} Can Scale with Our Platform',
+    body:"Hi {name},\n\nWe noticed your interest in our solutions. We've curated a set of resources and case studies specifically relevant to the {industry} industry.\n\nReady to explore the possibilities?"
+  },
+  low:{
+    name:'Awareness Campaign',type:'Awareness',channel:'Retargeting Ads',priority:'🟢 Low Priority',
+    subject:'See What\'s New at Our Platform',
+    body:"Hi {name},\n\nThank you for your interest! We'd love to share some resources about how companies like yours are benefiting from modern digital solutions."
+  }
+};
+
+const owners=['Sarah K. (Enterprise Sales)','Mike R. (SMB Team)','Lisa T. (Mid-Market)','Ahmed B. (Enterprise Sales)'];
+
+// ─── STATE ───────────────────────────────────────────────────────
+let selectedProspect=null;
+let campaignsFired=0;
+let converted=0;
+let currentEventPts=0;
+let pipelineRunning=false;
+let logTime=0;
+
+// ─── INIT ────────────────────────────────────────────────────────
+function init(){
+  renderTable();
+  renderSidebar();
+}
+
+function renderTable(){
+  const tbody=document.getElementById('prospect-table');
+  tbody.innerHTML='';
+  prospects.forEach((p,i)=>{
+    const baseScore=p.sizeScore+p.indScore+p.prodScore+p.behScore;
+    const pct=Math.min(100,baseScore/140*100);
+    const col=avatarColors[i%avatarColors.length];
+    const fillCol=baseScore>70?'var(--orange)':baseScore>40?'var(--yellow)':'var(--text3)';
+    const tr=document.createElement('tr');
+    tr.onclick=()=>selectProspect(i,tr);
+    tr.dataset.idx=i;
+    tr.innerHTML=`
+      <td class="mono">${p.id}</td>
+      <td style="font-weight:600;color:var(--text)">${p.company}</td>
+      <td><span class="badge ${p.size==='Enterprise'?'badge-ent':'badge-sme'}">${p.size}</span></td>
+      <td>${p.industry}</td>
+      <td>${p.product}</td>
+      <td>${p.behavior}</td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-mini"><div class="score-mini-fill" style="width:${pct}%;background:${fillCol}"></div></div>
+          <span class="mono" style="font-size:10px;color:${fillCol}">${baseScore}</span>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderSidebar(){
+  const el=document.getElementById('sidebar-prospects');
+  el.innerHTML='';
+  prospects.forEach((p,i)=>{
+    const baseScore=p.sizeScore+p.indScore+p.prodScore+p.behScore;
+    const col=avatarColors[i%avatarColors.length];
+    const scoreCol=baseScore>70?'var(--orange)':baseScore>40?'var(--yellow)':'var(--text3)';
+    const div=document.createElement('div');
+    div.className='prospect-item';
+    div.dataset.idx=i;
+    div.onclick=()=>selectProspect(i,null);
+    div.innerHTML=`
+      <div class="p-avatar" style="background:${col[1]};color:${col[0]}">${p.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name}</div>
+        <div class="p-company">${p.company}</div>
+      </div>
+      <div class="p-score-badge" style="background:rgba(242,101,34,0.1);color:${scoreCol}">${baseScore}</div>`;
+    el.appendChild(div);
+  });
+}
+
+// ─── SELECT PROSPECT ─────────────────────────────────────────────
+function selectProspect(idx, tr){
+  if(pipelineRunning) return;
+  selectedProspect=prospects[idx];
+
+  // highlight table row
+  document.querySelectorAll('#prospect-table tr').forEach(r=>r.classList.remove('highlighted'));
+  document.querySelectorAll('.prospect-item').forEach(r=>r.classList.remove('selected'));
+  if(tr) tr.classList.add('highlighted');
+  document.querySelectorAll('.prospect-item').forEach(r=>{
+    if(parseInt(r.dataset.idx)===idx) r.classList.add('selected');
+  });
+  document.querySelectorAll('#prospect-table tr').forEach(r=>{
+    if(parseInt(r.dataset.idx)===idx) r.classList.add('highlighted');
+  });
+
+  // reset event buttons
+  document.querySelectorAll('.event-btn').forEach(b=>b.classList.remove('fired'));
+
+  // show banner
+  const col=avatarColors[idx%avatarColors.length];
+  document.getElementById('selected-banner').style.display='flex';
+  document.getElementById('selected-banner').className='selected-prospect-banner';
+  document.getElementById('selected-banner').innerHTML=`
+    <div class="spb-avatar" style="background:${col[1]};color:${col[0]}">${selectedProspect.name.split(' ').map(n=>n[0]).join('')}</div>
+    <div class="spb-info">
+      <div class="spb-name">${selectedProspect.name} — ${selectedProspect.company}</div>
+      <div class="spb-meta">${selectedProspect.size} · ${selectedProspect.industry} · Interest: ${selectedProspect.product}</div>
+    </div>
+    <span style="font-size:11px;color:var(--text3)">Select an event below ↓</span>`;
+
+  // reset pipeline
+  resetPipeline(false);
+  addLog('INFO','PROSPECT',`Selected: <strong>${selectedProspect.name}</strong> (${selectedProspect.company}) — Base score loaded`,'info');
+}
+
+// ─── FIRE EVENT ──────────────────────────────────────────────────
+function fireEvent(type, pts, icon){
+  if(!selectedProspect){showToast('⚠️ Select a prospect first','Please click a row in the prospect table.','warn');return;}
+  if(pipelineRunning) return;
+
+  currentEventPts=pts;
+  const eventNames={whitepaper:'Downloaded Whitepaper',pricing:'Visited Pricing Page',demo:'Requested Demo',webinar:'Attended Webinar',email:'Opened Email Campaign',contact:'Contact Sales Form'};
+  const eName=eventNames[type];
+
+  // mark btn fired
+  document.querySelectorAll('.event-btn').forEach(b=>b.classList.remove('fired'));
+  event.currentTarget.classList.add('fired');
+
+  addLog('INFO','EVENT',`<strong>${icon} ${eName}</strong> received for ${selectedProspect.name} (+${pts} pts)`,'info');
+  runPipeline(eName, pts);
+}
+
+// ─── PIPELINE RUNNER ─────────────────────────────────────────────
+async function runPipeline(eventName, eventPts){
+  pipelineRunning=true;
+
+  const p=selectedProspect;
+  const totalScore=p.sizeScore+p.indScore+p.prodScore+p.behScore+eventPts;
+
+  // Step 0: Prospect captured
+  setStep(0,'running');
+  await delay(600);
+  document.getElementById('sub-0').textContent=p.id;
+  setStep(0,'done');
+  addLog('OK','CAPTURE',`Prospect profile loaded: <strong>${p.company}</strong> [${p.size}, ${p.industry}]`,'ok');
+  await delay(300);
+
+  // Step 1: Event trigger
+  setStep(1,'running');
+  await delay(700);
+  document.getElementById('sub-1').textContent='+'+eventPts+' pts';
+  setStep(1,'done');
+  addLog('OK','EVENT',`Event processed: <strong>${eventName}</strong>. Score delta: +${eventPts}`,'ok');
+  await delay(300);
+
+  // Step 2: AI Scoring
+  setStep(2,'running');
+  addLog('AI','SCORE','Running lead scoring model...',  'ai');
+  await delay(400);
+  addLog('AI','SCORE',`Company size weight: <strong>+${p.sizeScore}</strong>`, 'ai');
+  await delay(300);
+  addLog('AI','SCORE',`Industry fit weight: <strong>+${p.indScore}</strong>`, 'ai');
+  await delay(300);
+  addLog('AI','SCORE',`Product interest weight: <strong>+${p.prodScore}</strong>`, 'ai');
+  await delay(300);
+  addLog('AI','SCORE',`Behavioral signal weight: <strong>+${p.behScore}</strong>`, 'ai');
+  await delay(300);
+  addLog('AI','SCORE',`Event bonus: <strong>+${eventPts}</strong>`, 'ai');
+  await delay(400);
+  addLog('OK','SCORE',`Final Lead Score: <strong>${totalScore}</strong>/200`, 'ok');
+  document.getElementById('sub-2').textContent='Score: '+totalScore;
+  setStep(2,'done');
+
+  // Update KPIs
+  document.getElementById('kpi-score').textContent=totalScore;
+  let qual,qualSub,actionText,actionSub;
+  if(totalScore>=80){
+    qual='HIGH VALUE';qualSub='🔴 Acquisition Target';
+    actionText='ACQUIRE';actionSub='Trigger acquisition campaign';
+    document.getElementById('kpi-value')
+  } else if(totalScore>=50){
+    qual='QUALIFIED';qualSub='🟡 Nurture & Convert';
+    actionText='NURTURE';actionSub='Send nurturing sequence';
+  } else {
+    qual='LOW';qualSub='🟢 Awareness needed';
+    actionText='AWARE';actionSub='Retargeting campaign';
+  }
+  document.getElementById('kpi-qual').textContent=qual;
+  document.getElementById('kpi-qual-sub').textContent=qualSub;
+  document.getElementById('kpi-action').textContent=actionText;
+  document.getElementById('kpi-action-sub').textContent=actionSub;
+
+  await delay(400);
+
+  // Step 3: Campaign selection
+  setStep(3,'running');
+  addLog('AI','DECIDE',`Score ${totalScore} → evaluating campaign decision tree...`, 'ai');
+  await delay(600);
+
+  let campKey=totalScore>=80?'high':totalScore>=50?'mid':'low';
+  const camp=campaigns[campKey];
+  document.getElementById('sub-3').textContent=campKey.toUpperCase();
+  setStep(3,'done');
+  addLog('OK','DECIDE',`Campaign selected: <strong>${camp.name}</strong>`, 'ok');
+  await delay(300);
+
+  // Step 4: Execution
+  setStep(4,'running');
+  const leadId='LEAD-'+Math.floor(Math.random()*9000+1000);
+  const owner=owners[Math.floor(Math.random()*owners.length)];
+  addLog('OK','LEAD',`Lead created: <strong>${leadId}</strong>. Owner: ${owner}`, 'ok');
+  await delay(500);
+  addLog('OK','CAMPAIGN',`Campaign <strong>"${camp.name}"</strong> triggered via ${camp.channel}`, 'ok');
+  await delay(400);
+  addLog('OK','NOTIFY',`Sales team notified. Status: <strong>OPEN</strong>`, 'ok');
+  document.getElementById('sub-4').textContent='LAUNCHED';
+  setStep(4,'done');
+
+  // Fill result cards
+  document.getElementById('lead-card').classList.add('revealed');
+  document.getElementById('campaign-card').classList.add('revealed');
+  document.getElementById('lead-status-badge').style.display='inline-flex';
+  document.getElementById('camp-status-badge').style.display='inline-flex';
+
+  document.getElementById('res-lead-id').textContent=leadId;
+  document.getElementById('res-company').textContent=p.company;
+  document.getElementById('res-status').textContent='● Open — Assigned';
+  document.getElementById('res-owner').textContent=owner;
+
+  // Score bars
+  setTimeout(()=>{
+    const maxPts=50;
+    setBar('sb-size','sbv-size',p.sizeScore,maxPts);
+    setBar('sb-ind','sbv-ind',p.indScore,maxPts);
+    setBar('sb-prod','sbv-prod',p.prodScore,maxPts);
+    setBar('sb-beh','sbv-beh',p.behScore+eventPts,maxPts);
+    document.getElementById('score-gauge-fill').style.width=Math.min(100,totalScore/140*100)+'%';
+    document.getElementById('total-score-display').textContent=totalScore+' / 140+';
+  },200);
+
+  document.getElementById('res-campaign').textContent=camp.name;
+  document.getElementById('res-camp-type').textContent=camp.type;
+  document.getElementById('res-channel').textContent=camp.channel;
+  document.getElementById('res-priority').textContent=camp.priority;
+
+  const emailEl=document.getElementById('email-preview');
+  emailEl.style.display='block';
+  document.getElementById('email-subject').textContent=camp.subject.replace('{company}',p.company);
+  document.getElementById('email-body').textContent=camp.body.replace('{name}',p.name.split(' ')[0]).replace('{company}',p.company).replace('{industry}',p.industry);
+
+  // stats
+  campaignsFired++;
+  document.getElementById('stat-campaigns').textContent=campaignsFired;
+  if(totalScore>=80){converted++;document.getElementById('stat-converted').textContent=converted}
+
+  showToast('🚀 Campaign Launched!', `${camp.name} triggered for ${p.company}`, 'ok');
+  pipelineRunning=false;
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function setStep(idx, state){
+  const node=document.getElementById('node-'+idx);
+  const step=document.getElementById('step-'+idx);
+  node.className='flow-node '+state;
+  step.className='flow-step '+(state==='done'?'complete':state==='running'?'active':'');
+}
+
+function setBar(fillId, valId, val, max){
+  document.getElementById(fillId).style.width=Math.min(100,val/max*100)+'%';
+  document.getElementById(valId).textContent=val;
+}
+
+function addLog(type, tag, msg, cls){
+  logTime+=Math.floor(Math.random()*3+1);
+  const hh=String(Math.floor(logTime/60)).padStart(2,'0');
+  const mm=String(logTime%60).padStart(2,'0');
+  const body=document.getElementById('log-body');
+
+  // Remove cursor from last line
+  body.querySelectorAll('.log-cursor').forEach(c=>c.remove());
+
+  const line=document.createElement('div');
+  line.className='log-line';
+  const tagClass={'info':'tag-info','ok':'tag-ok','ai':'tag-ai','warn':'tag-warn'}[cls]||'tag-info';
+  line.innerHTML=`<span class="log-time">${hh}:${mm}:${String(Math.floor(Math.random()*59)).padStart(2,'0')}</span><span class="log-tag ${tagClass}">${tag}</span><span class="log-msg">${msg}<span class="log-cursor"></span></span>`;
+  body.appendChild(line);
+  body.scrollTop=body.scrollHeight;
+}
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function resetPipeline(full=true){
+  for(let i=0;i<5;i++){setStep(i,'idle');document.getElementById('sub-'+i).textContent='—';}
+  if(full){
+    document.getElementById('lead-card').classList.remove('revealed');
+    document.getElementById('campaign-card').classList.remove('revealed');
+    document.getElementById('lead-status-badge').style.display='none';
+    document.getElementById('camp-status-badge').style.display='none';
+    document.getElementById('email-preview').style.display='none';
+    ['res-lead-id','res-company','res-status','res-owner','res-campaign','res-camp-type','res-channel','res-priority'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('score-gauge-fill').style.width='0%';
+    document.getElementById('total-score-display').textContent='—';
+    ['sb-size','sb-ind','sb-prod','sb-beh'].forEach(id=>document.getElementById(id).style.width='0%');
+    ['sbv-size','sbv-ind','sbv-prod','sbv-beh'].forEach(id=>document.getElementById(id).textContent='0');
+    document.getElementById('kpi-score').textContent='—';
+    document.getElementById('kpi-qual').textContent='—';
+    document.getElementById('kpi-qual-sub').textContent='Awaiting AI scoring';
+    document.getElementById('kpi-action').textContent='—';
+    document.getElementById('kpi-action-sub').textContent='No event triggered yet';
+  }
+}
+
+function resetAll(){
+  pipelineRunning=false;
+  selectedProspect=null;
+  currentEventPts=0;
+  document.getElementById('selected-banner').style.display='none';
+  document.querySelectorAll('#prospect-table tr').forEach(r=>r.classList.remove('highlighted'));
+  document.querySelectorAll('.prospect-item').forEach(r=>r.classList.remove('selected'));
+  document.querySelectorAll('.event-btn').forEach(b=>b.classList.remove('fired'));
+  resetPipeline(true);
+  const body=document.getElementById('log-body');
+  body.innerHTML='';
+  logTime=0;
+  addLog('INFO','SYS','AMO Engine reset. Awaiting event trigger...','info');
+}
+
+let toastTimer;
+function showToast(header, body, type){
+  const el=document.getElementById('toast');
+  document.getElementById('toast-header').innerHTML=header;
+  document.getElementById('toast-body').textContent=body;
+  el.style.borderColor=type==='ok'?'rgba(0,229,160,0.3)':type==='warn'?'rgba(255,209,102,0.3)':'var(--border)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -3,448 +3,275 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Autonomous Marketing Operations — Live Prototype</title>
+<title>Autonomous Marketing Operations — Full Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 :root{
-  --bg:#07090f;
-  --surface:#0d111e;
-  --surface2:#121828;
-  --border:#1e2740;
-  --border2:#2a3560;
-  --orange:#f26522;
-  --orange2:#f7923a;
-  --orange-dim:rgba(242,101,34,0.12);
-  --green:#00e5a0;
-  --green-dim:rgba(0,229,160,0.1);
-  --blue:#4a9eff;
-  --blue-dim:rgba(74,158,255,0.1);
-  --yellow:#ffd166;
-  --red:#ff5e6c;
-  --text:#e8eaf2;
-  --text2:#8892b0;
-  --text3:#4a5580;
-  --mono:'IBM Plex Mono',monospace;
-  --display:'Syne',sans-serif;
-  --body:'Manrope',sans-serif;
+  --bg:#07090f;--surface:#0d111e;--surface2:#121828;
+  --border:#1e2740;--border2:#2a3560;
+  --orange:#f26522;--orange2:#f7923a;--orange-dim:rgba(242,101,34,0.12);
+  --green:#00e5a0;--green-dim:rgba(0,229,160,0.1);
+  --blue:#4a9eff;--blue-dim:rgba(74,158,255,0.1);
+  --purple:#b96eff;--purple-dim:rgba(185,110,255,0.1);
+  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.1);
+  --red:#ff5e6c;--red-dim:rgba(255,94,108,0.1);
+  --text:#e8eaf2;--text2:#8892b0;--text3:#4a5580;
+  --mono:'IBM Plex Mono',monospace;--display:'Syne',sans-serif;--body:'Manrope',sans-serif;
 }
-
 html{scroll-behavior:smooth}
 body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(242,101,34,0.04) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 90% 80%,rgba(74,158,255,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
 
-/* Ambient background */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(242,101,34,0.04) 0%,transparent 60%),
-    radial-gradient(ellipse 40% 40% at 90% 80%,rgba(74,158,255,0.03) 0%,transparent 50%);
-  pointer-events:none;z-index:0;
-}
+/* LAYOUT */
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh;position:relative;z-index:1}
 
-/* ─── LAYOUT ─── */
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;position:relative;z-index:1}
+/* SIDEBAR */
+aside{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.logo-tag{font-family:var(--display);font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.logo-title{font-family:var(--display);font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.logo-sub{font-size:10px;color:var(--text3);margin-top:3px}
 
-/* ─── SIDEBAR ─── */
-aside{
-  background:var(--surface);
-  border-right:1px solid var(--border);
-  padding:0;
-  display:flex;flex-direction:column;
-  position:sticky;top:0;height:100vh;overflow-y:auto;
-}
-.sidebar-logo{
-  padding:24px 20px 20px;
-  border-bottom:1px solid var(--border);
-}
-.logo-tag{
-  font-family:var(--display);font-size:9px;font-weight:700;
-  letter-spacing:3px;text-transform:uppercase;color:var(--orange);
-  margin-bottom:4px;
-}
-.logo-title{font-family:var(--display);font-size:16px;font-weight:800;color:var(--text);line-height:1.2}
-.logo-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.sidebar-section{padding:14px 12px 6px;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
 
-.sidebar-section{padding:16px 12px 8px;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
+.nav-scenario{margin:2px 8px;border-radius:10px;cursor:pointer;transition:all 0.2s;border:1px solid transparent;overflow:hidden}
+.nav-scenario:hover{background:var(--surface2);border-color:var(--border)}
+.nav-scenario.active{border-color:rgba(242,101,34,0.3);background:var(--orange-dim)}
+.nav-scenario-header{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.nav-num{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text3);flex-shrink:0;width:16px}
+.nav-scenario.active .nav-num{color:var(--orange)}
+.nav-icon{font-size:14px;flex-shrink:0}
+.nav-info{flex:1;min-width:0}
+.nav-name{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-theme{font-size:9px;color:var(--text3);margin-top:1px}
+.nav-scenario.active .nav-name{color:var(--orange)}
+.nav-status-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:all 0.3s}
+.nav-scenario.active .nav-status-dot{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.nav-scenario.completed .nav-status-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
 
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 14px;margin:1px 8px;border-radius:8px;
-  font-size:12px;font-weight:500;color:var(--text2);
-  cursor:pointer;transition:all 0.15s;
-}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(242,101,34,0.2)}
-.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
-.nav-item.active .nav-dot{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.sidebar-bottom{padding:14px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);margin-top:auto}
+.sys-live{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+.lifecycle-mini{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3);flex-wrap:wrap}
+.lc-tag{background:var(--surface2);border:1px solid var(--border);padding:2px 6px;border-radius:3px;font-size:8px;font-weight:600;letter-spacing:0.5px}
 
-/* Prospect mini list */
-.prospect-list{padding:8px;flex:1}
-.prospect-item{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;border-radius:8px;
-  cursor:pointer;transition:all 0.15s;
-  border:1px solid transparent;
-}
-.prospect-item:hover{background:var(--surface2);border-color:var(--border)}
-.prospect-item.selected{background:rgba(242,101,34,0.08);border-color:rgba(242,101,34,0.25)}
-.p-avatar{
-  width:30px;height:30px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--display);font-size:11px;font-weight:800;
-  flex-shrink:0;
-}
-.p-info{flex:1;min-width:0}
-.p-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.p-company{font-size:10px;color:var(--text3)}
-.p-score-badge{
-  font-family:var(--mono);font-size:10px;font-weight:500;
-  padding:2px 6px;border-radius:4px;flex-shrink:0;
-}
+/* MAIN */
+main{display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-scenario-badge{background:var(--orange-dim);border:1px solid rgba(242,101,34,0.25);color:var(--orange);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;font-family:var(--mono)}
+.topbar-title{font-family:var(--display);font-size:16px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-kpi{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 12px;font-size:10px;color:var(--text2)}
+.topbar-kpi strong{font-family:var(--mono);color:var(--text)}
+.btn-reset{background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--body)}
+.btn-reset:hover{border-color:var(--border2);color:var(--text)}
 
-.sidebar-bottom{
-  padding:16px;border-top:1px solid var(--border);
-  font-size:11px;color:var(--text3);
-}
-.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:blink 2s infinite}
+/* SCENARIO PAGES */
+.scenario-page{display:none;flex:1;padding:24px 28px 48px;flex-direction:column;gap:20px}
+.scenario-page.active{display:flex}
 
-/* ─── MAIN ─── */
-main{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+/* OVERVIEW PAGE */
+.overview-hero{background:linear-gradient(135deg,var(--surface) 0%,#111828 100%);border:1px solid var(--border);border-radius:16px;padding:36px;position:relative;overflow:hidden}
+.overview-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(242,101,34,0.08),transparent);pointer-events:none}
+.oh-tag{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+.oh-title{font-family:var(--display);font-size:32px;font-weight:800;line-height:1.1;margin-bottom:12px}
+.oh-title span{color:var(--orange)}
+.oh-desc{font-size:13px;color:var(--text2);line-height:1.7;max-width:600px;margin-bottom:24px}
+.lifecycle-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.lc-step{display:flex;align-items:center}
+.lc-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;transition:all 0.2s}
+.lc-pill:hover{border-color:var(--orange);color:var(--orange)}
+.lc-arrow{color:var(--text3);padding:0 8px;font-size:16px}
 
-/* Top bar */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 32px;
-  border-bottom:1px solid var(--border);
-  background:var(--surface);
-  position:sticky;top:0;z-index:100;
-}
-.topbar-title{font-family:var(--display);font-size:18px;font-weight:700}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.topbar-stat{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:6px 14px;
-  font-size:11px;color:var(--text2);
-}
-.topbar-stat strong{color:var(--text);font-family:var(--mono)}
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.sc-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.sc-card:hover{border-color:rgba(242,101,34,0.3);transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,0,0,0.4)}
+.sc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s}
+.sc-card:hover::before{opacity:1}
+.sc-num{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px}
+.sc-icon{font-size:28px;margin-bottom:10px}
+.sc-title{font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:4px}
+.sc-theme{font-size:10px;color:var(--text3);margin-bottom:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.sc-kpis{display:flex;flex-direction:column;gap:4px}
+.sc-kpi{font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px}
+.sc-kpi-arrow{font-size:11px}
 
-/* ─── CONTENT PANELS ─── */
-.content{flex:1;padding:28px 32px;display:flex;flex-direction:column;gap:24px}
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:border-color 0.2s}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.kpi-value{font-family:var(--display);font-size:32px;font-weight:800;line-height:1;margin-bottom:4px;transition:all 0.4s}
+.kpi-sub{font-size:10px;color:var(--text3)}
 
-/* Panel header */
-.panel-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-
-.kpi-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:20px;
-  transition:border-color 0.2s;
-  position:relative;overflow:hidden;
-}
-.kpi-card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  opacity:0;transition:opacity 0.3s;
-}
-.kpi-card.orange::after{background:linear-gradient(90deg,var(--orange),var(--orange2));opacity:1}
-.kpi-card.green::after{background:linear-gradient(90deg,var(--green),#7fffb2);opacity:1}
-.kpi-card.blue::after{background:linear-gradient(90deg,var(--blue),#7cb9ff);opacity:1}
-.kpi-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.kpi-value{font-family:var(--display);font-size:36px;font-weight:800;line-height:1;margin-bottom:6px}
-.kpi-value.orange-text{color:var(--orange)}
-.kpi-value.green-text{color:var(--green)}
-.kpi-value.blue-text{color:var(--blue)}
-.kpi-sub{font-size:11px;color:var(--text3)}
-.kpi-sub .up{color:var(--green)}
-.kpi-sub .dn{color:var(--yellow)}
-
-/* ─── DEMO CONTROL ─── */
-.demo-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:4px;
-}
-.section-title{font-family:var(--display);font-size:14px;font-weight:700;letter-spacing:0.3px}
-.section-title span{color:var(--orange)}
-
-/* ─── PROSPECT TABLE ─── */
-.table-wrap{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;overflow:hidden;
-}
-.table-toolbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 20px;border-bottom:1px solid var(--border);
-}
-.table-toolbar-left{display:flex;align-items:center;gap:12px}
-.tbl-title{font-size:13px;font-weight:600}
-.tbl-count{
-  background:var(--orange-dim);color:var(--orange);
-  font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
-  font-family:var(--mono);
-}
+/* CUSTOMER TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border)}
+.tbl-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px}
+.tbl-count{background:var(--orange-dim);color:var(--orange);font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;font-family:var(--mono)}
 table{width:100%;border-collapse:collapse}
-thead th{
-  padding:10px 16px;text-align:left;
-  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--text3);border-bottom:1px solid var(--border);
-  background:rgba(255,255,255,0.01);
-}
-tbody tr{
-  border-bottom:1px solid var(--border);
-  transition:background 0.15s;cursor:pointer;
-}
+thead th{padding:9px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.01)}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;cursor:pointer}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--surface2)}
 tbody tr.highlighted{background:rgba(242,101,34,0.06)}
-td{padding:12px 16px;font-size:12px;color:var(--text2)}
-td:first-child{color:var(--text);font-weight:500}
-td.mono{font-family:var(--mono);font-size:11px}
+td{padding:10px 14px;font-size:11px;color:var(--text2)}
+td.mono{font-family:var(--mono);font-size:10px}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px}
+.badge-high{background:var(--red-dim);color:var(--red)}
+.badge-med{background:var(--yellow-dim);color:var(--yellow)}
+.badge-low{background:var(--green-dim);color:var(--green)}
+.badge-ent{background:var(--blue-dim);color:var(--blue)}
+.badge-pre{background:var(--purple-dim);color:var(--purple)}
+.score-bar-wrap{display:flex;align-items:center;gap:6px}
+.score-mini{width:50px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.score-mini-fill{height:100%;border-radius:2px;transition:width 0.8s}
 
-.badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:3px 8px;border-radius:4px;
-  font-size:10px;font-weight:600;
-}
-.badge-ent{background:rgba(74,158,255,0.12);color:var(--blue)}
-.badge-sme{background:rgba(255,209,102,0.12);color:var(--yellow)}
-.score-bar-wrap{display:flex;align-items:center;gap:8px}
-.score-mini{width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.score-mini-fill{height:100%;border-radius:2px;transition:width 0.8s ease}
-
-/* ─── EVENT TRIGGER PANEL ─── */
-.event-panel{
-  display:grid;grid-template-columns:1fr 1fr;gap:16px;
-}
-.event-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:20px;
-}
-.event-card-title{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.event-card-title svg{color:var(--orange)}
-
-.event-btn-group{display:flex;flex-direction:column;gap:8px}
-.event-btn{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;border-radius:8px;
-  background:var(--surface2);border:1px solid var(--border);
-  color:var(--text2);font-size:12px;font-weight:500;
-  cursor:pointer;transition:all 0.2s;text-align:left;width:100%;
-}
+/* EVENT PANEL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px}
+.panel-title{font-size:12px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:7px;color:var(--text)}
+.event-btn-group{display:flex;flex-direction:column;gap:7px}
+.event-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;font-family:var(--body)}
 .event-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-dim)}
 .event-btn.fired{border-color:var(--green);color:var(--green);background:var(--green-dim)}
-.event-icon{
-  width:28px;height:28px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,0.05);font-size:13px;flex-shrink:0;
-}
+.event-btn.fired-purple{border-color:var(--purple);color:var(--purple);background:var(--purple-dim)}
+.event-icon-sm{font-size:14px;flex-shrink:0}
 .event-info{flex:1}
-.event-name{font-size:12px;font-weight:600}
-.event-pts{font-size:10px;margin-top:1px;opacity:0.7}
+.event-name{font-size:11px;font-weight:600}
+.event-pts{font-size:9px;margin-top:1px;opacity:0.7}
 
-/* ─── PIPELINE FLOW ─── */
-.pipeline-flow{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:24px;
-}
-
-.flow-steps{
-  display:flex;align-items:flex-start;
-  gap:0;position:relative;
-}
-.flow-steps::before{
-  content:'';
-  position:absolute;top:20px;left:0;right:0;height:1px;
-  background:repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 6px, transparent 6px, transparent 14px);
-}
-
-.flow-step{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  position:relative;z-index:1;
-}
-.flow-node{
-  width:40px;height:40px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;margin-bottom:10px;
-  border:2px solid var(--border);background:var(--bg);
-  transition:all 0.4s;position:relative;
-}
+/* PIPELINE */
+.pipeline-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.pipeline-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.pipeline-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px}
+.flow-steps{display:flex;align-items:flex-start;position:relative}
+.flow-steps::before{content:'';position:absolute;top:19px;left:0;right:0;height:1px;background:repeating-linear-gradient(90deg,var(--border) 0px,var(--border) 6px,transparent 6px,transparent 14px)}
+.flow-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.flow-node{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;margin-bottom:8px;border:2px solid var(--border);background:var(--bg);transition:all 0.4s}
 .flow-node.idle{color:var(--text3)}
-.flow-node.running{
-  border-color:var(--orange);color:var(--orange);
-  box-shadow:0 0 0 4px rgba(242,101,34,0.15);
-  animation:node-run 1s ease-in-out infinite;
-}
-.flow-node.done{
-  border-color:var(--green);background:rgba(0,229,160,0.1);
-  color:var(--green);
-}
-.flow-node.done::after{
-  content:'✓';
-  position:absolute;
-  font-size:16px;font-weight:700;
-  color:var(--green);
-}
-.flow-label{font-size:10px;font-weight:600;text-align:center;color:var(--text3);line-height:1.4;max-width:70px}
-.flow-sublabel{font-size:9px;color:var(--text3);text-align:center;margin-top:2px;font-family:var(--mono)}
-.flow-step.active .flow-label{color:var(--orange)}
-.flow-step.complete .flow-label{color:var(--green)}
+.flow-node.running{border-color:var(--orange);color:var(--orange);box-shadow:0 0 0 4px rgba(242,101,34,0.15);animation:node-run 1.2s ease-in-out infinite}
+.flow-node.done{border-color:var(--green);background:rgba(0,229,160,0.08);color:var(--green)}
+.flow-label{font-size:9px;font-weight:600;text-align:center;color:var(--text3);line-height:1.4;max-width:65px}
+.flow-sublabel{font-size:8px;color:var(--text3);text-align:center;margin-top:2px;font-family:var(--mono)}
+.flow-step.f-active .flow-label{color:var(--orange)}
+.flow-step.f-done .flow-label{color:var(--green)}
 
-@keyframes node-run{
-  0%,100%{box-shadow:0 0 0 4px rgba(242,101,34,0.15)}
-  50%{box-shadow:0 0 0 8px rgba(242,101,34,0.05),0 0 20px rgba(242,101,34,0.2)}
-}
-
-/* ─── LOG TERMINAL ─── */
-.log-terminal{
-  background:#040508;border:1px solid var(--border);
-  border-radius:12px;padding:0;overflow:hidden;
-  font-family:var(--mono);
-}
-.log-header{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 16px;background:var(--surface);
-  border-bottom:1px solid var(--border);
-}
-.log-dots{display:flex;gap:6px}
-.log-dot{width:10px;height:10px;border-radius:50%}
-.log-title{font-size:11px;color:var(--text3);margin-left:4px}
-.log-body{padding:14px 16px;min-height:120px;max-height:200px;overflow-y:auto}
-.log-line{
-  font-size:11px;line-height:1.8;
-  display:flex;gap:10px;
-  animation:logIn 0.3s ease;
-}
-@keyframes logIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.log-time{color:var(--text3);flex-shrink:0;user-select:none}
-.log-tag{padding:0 5px;border-radius:3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
+/* LOG */
+.log-terminal{background:#040508;border:1px solid var(--border);border-radius:12px;overflow:hidden;font-family:var(--mono)}
+.log-header{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+.log-dots{display:flex;gap:5px}
+.log-dot{width:9px;height:9px;border-radius:50%}
+.log-title-bar{font-size:10px;color:var(--text3);margin-left:4px}
+.log-body{padding:12px 14px;min-height:100px;max-height:180px;overflow-y:auto}
+.log-line{font-size:10px;line-height:1.9;display:flex;gap:8px;animation:logIn 0.3s ease}
+.log-time{color:var(--text3);flex-shrink:0}
+.log-tag{padding:0 4px;border-radius:3px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
 .tag-info{background:rgba(74,158,255,0.15);color:var(--blue)}
 .tag-ai{background:rgba(242,101,34,0.15);color:var(--orange)}
 .tag-ok{background:rgba(0,229,160,0.15);color:var(--green)}
 .tag-warn{background:rgba(255,209,102,0.15);color:var(--yellow)}
+.tag-purple{background:rgba(185,110,255,0.15);color:var(--purple)}
 .log-msg{color:var(--text2)}
 .log-msg strong{color:var(--text)}
-.log-cursor{display:inline-block;width:7px;height:12px;background:var(--orange);opacity:0.8;margin-left:4px;animation:blink 1s step-end infinite;vertical-align:middle}
+.log-cursor{display:inline-block;width:6px;height:11px;background:var(--orange);opacity:0.8;margin-left:3px;animation:blink 1s step-end infinite;vertical-align:middle}
 
-/* ─── RESULT CARDS ─── */
-.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-
-.result-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:20px;
-  transition:all 0.4s;
-  opacity:0.35;filter:grayscale(1);
-}
+/* RESULT CARDS */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;transition:all 0.4s;opacity:0.3;filter:grayscale(1)}
 .result-card.revealed{opacity:1;filter:none}
-
-.result-card-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:14px;
-}
-.result-card-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px}
-.result-icon{
-  width:28px;height:28px;border-radius:7px;
-  display:flex;align-items:center;justify-content:center;font-size:13px;
-}
-.icon-lead{background:rgba(74,158,255,0.12)}
-.icon-campaign{background:var(--orange-dim)}
-
-.result-field{margin-bottom:10px}
+.result-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.result-card-title{font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px}
+.result-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.result-field{margin-bottom:8px}
 .result-field:last-child{margin-bottom:0}
-.rf-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
-.rf-value{font-size:12px;color:var(--text);font-weight:500}
-.rf-value.mono{font-family:var(--mono);color:var(--blue)}
+.rf-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
+.rf-value{font-size:11px;color:var(--text);font-weight:500}
+.rf-value.mono{font-family:var(--mono);color:var(--blue);font-size:10px}
 .rf-value.orange{color:var(--orange)}
 .rf-value.green{color:var(--green)}
-
-.score-gauge{
-  position:relative;height:8px;background:var(--border);
-  border-radius:4px;overflow:hidden;margin-top:6px;
-}
-.score-gauge-fill{
-  height:100%;border-radius:4px;
-  background:linear-gradient(90deg,var(--orange),var(--orange2));
-  transition:width 1.2s cubic-bezier(.4,0,.2,1);
-  width:0%;
-}
-
-.email-preview{
-  background:var(--bg);border:1px solid var(--border);
-  border-radius:8px;padding:12px;margin-top:8px;
-  font-size:11px;line-height:1.7;color:var(--text2);
-}
-.email-subject{font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-
-/* ─── RESET BTN ─── */
-.btn-primary{
-  background:linear-gradient(135deg,var(--orange),var(--orange2));
-  color:white;border:none;border-radius:8px;
-  padding:10px 20px;font-size:12px;font-weight:600;
-  cursor:pointer;transition:all 0.2s;font-family:var(--body);
-}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(242,101,34,0.35)}
-.btn-secondary{
-  background:var(--surface2);color:var(--text2);
-  border:1px solid var(--border);border-radius:8px;
-  padding:9px 16px;font-size:12px;font-weight:500;
-  cursor:pointer;transition:all 0.2s;font-family:var(--body);
-}
-.btn-secondary:hover{border-color:var(--border2);color:var(--text)}
-
-/* SCORE BREAKDOWN */
-.score-breakdown{margin-top:10px}
-.sb-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.sb-label{font-size:10px;color:var(--text3);width:130px;flex-shrink:0}
-.sb-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.rf-value.purple{color:var(--purple)}
+.rf-value.red{color:var(--red)}
+.score-gauge{position:relative;height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:5px}
+.score-gauge-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--orange),var(--orange2));transition:width 1.2s cubic-bezier(.4,0,.2,1);width:0%}
+.email-preview{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px;margin-top:6px;font-size:10px;line-height:1.7;color:var(--text2)}
+.email-subject{font-size:10px;font-weight:600;color:var(--text);margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.sb-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.sb-label{font-size:9px;color:var(--text3);width:120px;flex-shrink:0}
+.sb-bar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
 .sb-fill{height:100%;border-radius:2px;background:var(--orange);transition:width 1s ease}
-.sb-val{font-family:var(--mono);font-size:10px;color:var(--text2);width:24px;text-align:right;flex-shrink:0}
+.sb-val{font-family:var(--mono);font-size:9px;color:var(--text2);width:20px;text-align:right;flex-shrink:0}
+
+/* SECTION LABEL */
+.section-label{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:10px}
+.section-label span{color:var(--orange)}
+
+/* CHANNEL PILLS */
+.channel-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ch-pill{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:9px;font-weight:600;color:var(--text2)}
+.ch-pill.active{border-color:var(--orange);color:var(--orange);background:var(--orange-dim)}
+
+/* OFFER CARDS */
+.offer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.offer-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;transition:all 0.3s;opacity:0.4}
+.offer-card.revealed{opacity:1;border-color:rgba(242,101,34,0.25)}
+.offer-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.offer-price{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--orange);margin-bottom:4px}
+.offer-desc{font-size:9px;color:var(--text3);line-height:1.5}
+.offer-badge{display:inline-block;background:var(--green-dim);color:var(--green);font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;margin-top:4px}
+
+/* CHURN RISK METER */
+.risk-meter-wrap{margin-top:6px}
+.risk-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.risk-label{font-size:9px;color:var(--text2);width:100px;flex-shrink:0}
+.risk-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.risk-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.risk-fill.red{background:linear-gradient(90deg,var(--yellow),var(--red))}
+.risk-val{font-family:var(--mono);font-size:9px;width:28px;text-align:right;flex-shrink:0}
+
+/* AB TEST */
+.ab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.ab-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;transition:all 0.3s}
+.ab-card.winner{border-color:var(--green);box-shadow:0 0 0 1px rgba(0,229,160,0.15)}
+.ab-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.winner-crown{font-size:11px}
+.ab-metric{margin-bottom:5px}
+.ab-metric-label{font-size:8px;color:var(--text3)}
+.ab-metric-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)}
+.ab-metric-val.green{color:var(--green)}
+
+/* LOYALTY */
+.loyalty-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.tier-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;transition:all 0.3s;opacity:0.4}
+.tier-card.revealed{opacity:1}
+.tier-icon{font-size:20px;margin-bottom:4px}
+.tier-name{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.tier-pts{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--orange)}
+.tier-count{font-size:8px;color:var(--text3);margin-top:2px}
+
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:11px;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.6);display:none;animation:slideIn 0.3s ease}
+.toast.show{display:block}
+.toast-header{font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.toast-body{font-size:10px;color:var(--text3)}
 
 /* ANIMATIONS */
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.fade-up{animation:fadeUp 0.5s ease forwards}
+@keyframes node-run{0%,100%{box-shadow:0 0 0 4px rgba(242,101,34,0.15)}50%{box-shadow:0 0 0 8px rgba(242,101,34,0.05),0 0 20px rgba(242,101,34,0.2)}}
+@keyframes logIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp 0.4s ease forwards}
 
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-
-/* SELECTED PROSPECT HIGHLIGHT */
-.selected-prospect-banner{
-  background:linear-gradient(135deg,var(--orange-dim),rgba(242,101,34,0.06));
-  border:1px solid rgba(242,101,34,0.25);
-  border-radius:10px;padding:12px 16px;
-  display:flex;align-items:center;gap:12px;
-  margin-bottom:0;
-  transition:all 0.3s;
-}
-.spb-avatar{
-  width:36px;height:36px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--display);font-size:13px;font-weight:800;
-  flex-shrink:0;
-}
-.spb-info{flex:1}
-.spb-name{font-size:13px;font-weight:600}
-.spb-meta{font-size:11px;color:var(--text3);margin-top:1px}
-
-/* NOTIFICATION TOAST */
-.toast{
-  position:fixed;top:24px;right:24px;z-index:9999;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:14px 18px;
-  font-size:12px;min-width:280px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.6);
-  display:none;
-  animation:slideIn 0.3s ease;
-}
-.toast.show{display:block}
-@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
-.toast-header{font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.toast-body{font-size:11px;color:var(--text3)}
 </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-header" id="toast-header"></div>
   <div class="toast-body" id="toast-body"></div>
@@ -452,660 +279,1293 @@ td.mono{font-family:var(--mono);font-size:11px}
 
 <div class="app">
 
-  <!-- SIDEBAR -->
-  <aside>
-    <div class="sidebar-logo">
-      <div class="logo-tag">Autonomous Marketing Ops</div>
-      <div class="logo-title">AMO Platform</div>
-      <div class="logo-sub">Prospect → Customer Engine</div>
+<!-- SIDEBAR -->
+<aside>
+  <div class="sidebar-logo">
+    <div class="logo-tag">Autonomous Marketing Ops</div>
+    <div class="logo-title">AMO Platform</div>
+    <div class="logo-sub">Full Demo · 5 Scenarios</div>
+  </div>
+
+  <div class="sidebar-section">Overview</div>
+  <div class="nav-scenario active" onclick="showPage('overview')" id="nav-overview">
+    <div class="nav-scenario-header">
+      <span class="nav-num">00</span>
+      <span class="nav-icon">🏠</span>
+      <div class="nav-info">
+        <div class="nav-name">Overview</div>
+        <div class="nav-theme">All Scenarios</div>
+      </div>
+      <div class="nav-status-dot"></div>
+    </div>
+  </div>
+
+  <div class="sidebar-section" style="margin-top:6px">Demo Scenarios</div>
+
+  <div class="nav-scenario" onclick="showPage('s1')" id="nav-s1">
+    <div class="nav-scenario-header">
+      <span class="nav-num">01</span>
+      <span class="nav-icon">🎯</span>
+      <div class="nav-info">
+        <div class="nav-name">Prospect Acquisition</div>
+        <div class="nav-theme">Revenue Growth</div>
+      </div>
+      <div class="nav-status-dot"></div>
+    </div>
+  </div>
+
+  <div class="nav-scenario" onclick="showPage('s2')" id="nav-s2">
+    <div class="nav-scenario-header">
+      <span class="nav-num">02</span>
+      <span class="nav-icon">📈</span>
+      <div class="nav-info">
+        <div class="nav-name">Upsell & Cross-Sell</div>
+        <div class="nav-theme">Revenue Expansion</div>
+      </div>
+      <div class="nav-status-dot"></div>
+    </div>
+  </div>
+
+  <div class="nav-scenario" onclick="showPage('s3')" id="nav-s3">
+    <div class="nav-scenario-header">
+      <span class="nav-num">03</span>
+      <span class="nav-icon">🛡️</span>
+      <div class="nav-info">
+        <div class="nav-name">Churn Prevention</div>
+        <div class="nav-theme">Customer Retention</div>
+      </div>
+      <div class="nav-status-dot"></div>
+    </div>
+  </div>
+
+  <div class="nav-scenario" onclick="showPage('s4')" id="nav-s4">
+    <div class="nav-scenario-header">
+      <span class="nav-num">04</span>
+      <span class="nav-icon">💎</span>
+      <div class="nav-info">
+        <div class="nav-name">Loyalty & CLV Growth</div>
+        <div class="nav-theme">Customer Value</div>
+      </div>
+      <div class="nav-status-dot"></div>
+    </div>
+  </div>
+
+  <div class="nav-scenario" onclick="showPage('s5')" id="nav-s5">
+    <div class="nav-scenario-header">
+      <span class="nav-num">05</span>
+      <span class="nav-icon">⚡</span>
+      <div class="nav-info">
+        <div class="nav-name">Campaign Optimization</div>
+        <div class="nav-theme">Marketing Efficiency</div>
+      </div>
+      <div class="nav-status-dot"></div>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="sys-live"><div class="live-dot"></div>System Online · AMO v2.4</div>
+    <div class="lifecycle-mini">
+      <span class="lc-tag">Signals</span>→
+      <span class="lc-tag">Intelligence</span>→
+      <span class="lc-tag">Decision</span>→
+      <span class="lc-tag">Action</span>→
+      <span class="lc-tag">Learning</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-scenario-badge" id="topbar-badge">OVERVIEW</span>
+      <span class="topbar-title" id="topbar-title">Autonomous Marketing Lifecycle</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-kpi">Scenarios Run: <strong id="stat-run">0</strong></div>
+      <div class="topbar-kpi">Campaigns: <strong id="stat-camp" style="color:var(--orange)">0</strong></div>
+      <div class="topbar-kpi">Value Created: <strong id="stat-value" style="color:var(--green)">$0</strong></div>
+      <button class="btn-reset" onclick="resetCurrent()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PAGE: OVERVIEW -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="scenario-page active" id="page-overview">
+    <div class="overview-hero">
+      <div class="oh-tag">Autonomous Marketing Operations</div>
+      <div class="oh-title">Prospect to <span>Lifetime</span> Customer</div>
+      <div class="oh-desc">A single AI-powered platform that autonomously acquires customers, grows revenue, prevents churn, increases customer value, and continuously optimizes marketing performance.</div>
+      <div class="lifecycle-flow">
+        <div class="lc-step"><div class="lc-pill" onclick="showPage('s1')">📡 Signals</div><span class="lc-arrow">→</span></div>
+        <div class="lc-step"><div class="lc-pill" onclick="showPage('s2')">🧠 Intelligence</div><span class="lc-arrow">→</span></div>
+        <div class="lc-step"><div class="lc-pill" onclick="showPage('s3')">⚖️ Decision</div><span class="lc-arrow">→</span></div>
+        <div class="lc-step"><div class="lc-pill" onclick="showPage('s4')">🚀 Action</div><span class="lc-arrow">→</span></div>
+        <div class="lc-step"><div class="lc-pill" onclick="showPage('s5')">📊 Learning</div></div>
+      </div>
     </div>
 
-    <div class="sidebar-section">Navigation</div>
-    <div class="nav-item active"><div class="nav-dot"></div>Live Demo</div>
-    <div class="nav-item"><div class="nav-dot"></div>Analytics</div>
-    <div class="nav-item"><div class="nav-dot"></div>Campaign Library</div>
-    <div class="nav-item"><div class="nav-dot"></div>Settings</div>
-
-    <div class="sidebar-section" style="margin-top:8px">Prospect Pool</div>
-    <div class="prospect-list" id="sidebar-prospects"></div>
-
-    <div class="sidebar-bottom">
-      <span class="status-dot"></span>System Online &mdash; v2.4.1
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main>
-    <div class="topbar">
-      <div class="topbar-title">Live Acquisition <span style="color:var(--orange)">Demo</span></div>
-      <div class="topbar-right">
-        <div class="topbar-stat">Active Prospects: <strong id="stat-prospects">6</strong></div>
-        <div class="topbar-stat">Campaigns Fired: <strong id="stat-campaigns" style="color:var(--orange)">0</strong></div>
-        <div class="topbar-stat">Converted: <strong id="stat-converted" style="color:var(--green)">0</strong></div>
-        <button class="btn-secondary" onclick="resetAll()">↺ Reset</button>
+    <div class="scenario-grid">
+      <div class="sc-card" onclick="showPage('s1')" style="--c:var(--orange)">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),var(--orange2))"></div>
+        <div class="sc-num">SCENARIO 01</div>
+        <div class="sc-icon">🎯</div>
+        <div class="sc-title">Prospect Acquisition</div>
+        <div class="sc-theme">Revenue Growth</div>
+        <div class="sc-kpis">
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Revenue Growth</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Conversion Rate</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--yellow)">↓</span> Acquisition Cost</div>
+        </div>
+      </div>
+      <div class="sc-card" onclick="showPage('s2')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),#7cb9ff)"></div>
+        <div class="sc-num">SCENARIO 02</div>
+        <div class="sc-icon">📈</div>
+        <div class="sc-title">Upsell & Cross-Sell</div>
+        <div class="sc-theme">Revenue Expansion</div>
+        <div class="sc-kpis">
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Revenue Growth</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Customer Value (CLV)</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Offer Conversion</div>
+        </div>
+      </div>
+      <div class="sc-card" onclick="showPage('s3')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),#ff9a6c)"></div>
+        <div class="sc-num">SCENARIO 03</div>
+        <div class="sc-icon">🛡️</div>
+        <div class="sc-title">Churn Prevention</div>
+        <div class="sc-theme">Customer Retention</div>
+        <div class="sc-kpis">
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Retention Rate</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--yellow)">↓</span> Churn Rate</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Lifetime Value</div>
+        </div>
+      </div>
+      <div class="sc-card" onclick="showPage('s4')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),#d4a0ff)"></div>
+        <div class="sc-num">SCENARIO 04</div>
+        <div class="sc-icon">💎</div>
+        <div class="sc-title">Loyalty & CLV Growth</div>
+        <div class="sc-theme">Customer Engagement</div>
+        <div class="sc-kpis">
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> CLV</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Engagement Score</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Retention</div>
+        </div>
+      </div>
+      <div class="sc-card" onclick="showPage('s5')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),#ffb347)"></div>
+        <div class="sc-num">SCENARIO 05</div>
+        <div class="sc-icon">⚡</div>
+        <div class="sc-title">Campaign Optimization</div>
+        <div class="sc-theme">Marketing Efficiency</div>
+        <div class="sc-kpis">
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Marketing Efficiency</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--green)">↑</span> Campaign Performance</div>
+          <div class="sc-kpi"><span class="sc-kpi-arrow" style="color:var(--yellow)">↓</span> Operational Cost</div>
+        </div>
+      </div>
+      <div class="sc-card" style="background:linear-gradient(135deg,var(--surface),#111828);border-style:dashed;cursor:default;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:160px">
+        <div style="font-size:28px;margin-bottom:8px">🔄</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px">Autonomous Lifecycle</div>
+        <div style="font-size:9px;color:var(--text3);line-height:1.6">All scenarios work together<br>as a continuous loop</div>
       </div>
     </div>
+  </div>
 
-    <div class="content">
-
-      <!-- KPI ROW -->
-      <div class="panel-row">
-        <div class="kpi-card orange">
-          <div class="kpi-label">Avg. Lead Score</div>
-          <div class="kpi-value orange-text" id="kpi-score">—</div>
-          <div class="kpi-sub">Select a prospect to score</div>
-        </div>
-        <div class="kpi-card green">
-          <div class="kpi-label">Qualification</div>
-          <div class="kpi-value green-text" id="kpi-qual">—</div>
-          <div class="kpi-sub" id="kpi-qual-sub">Awaiting AI scoring</div>
-        </div>
-        <div class="kpi-card blue">
-          <div class="kpi-label">Recommended Action</div>
-          <div class="kpi-value" style="font-size:18px;padding-top:8px" id="kpi-action">—</div>
-          <div class="kpi-sub" id="kpi-action-sub">No event triggered yet</div>
-        </div>
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PAGE: S1 — PROSPECT ACQUISITION -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="scenario-page" id="page-s1">
+    <div class="kpi-row">
+      <div class="kpi-card" style="--c:var(--orange)"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--orange2))"></div>
+        <div class="kpi-label">Lead Score</div><div class="kpi-value" id="s1-kpi1" style="color:var(--orange)">—</div><div class="kpi-sub">Select a prospect</div>
       </div>
-
-      <!-- PROSPECT TABLE -->
-      <div>
-        <div class="demo-header">
-          <div class="section-title">① Select <span>Prospect</span></div>
-        </div>
-        <div class="table-wrap" style="margin-top:10px">
-          <div class="table-toolbar">
-            <div class="table-toolbar-left">
-              <span class="tbl-title">Prospect Dataset</span>
-              <span class="tbl-count" id="tbl-count">6 records</span>
-            </div>
-            <span style="font-size:11px;color:var(--text3)">Click a row to select prospect</span>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Company</th>
-                <th>Size</th>
-                <th>Industry</th>
-                <th>Interest</th>
-                <th>Behavior</th>
-                <th>Base Score</th>
-              </tr>
-            </thead>
-            <tbody id="prospect-table"></tbody>
-          </table>
-        </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#7fffb2)"></div>
+        <div class="kpi-label">Qualification</div><div class="kpi-value" id="s1-kpi2" style="color:var(--green);font-size:18px;padding-top:8px">—</div><div class="kpi-sub" id="s1-kpi2s">Awaiting scoring</div>
       </div>
-
-      <!-- EVENT TRIGGER -->
-      <div>
-        <div class="demo-header">
-          <div class="section-title">② Trigger <span>Event</span></div>
-          <div id="selected-banner" style="display:none"></div>
-        </div>
-        <div class="event-panel" style="margin-top:10px">
-          <div class="event-card">
-            <div class="event-card-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              Inbound Events
-            </div>
-            <div class="event-btn-group">
-              <button class="event-btn" onclick="fireEvent('whitepaper',30,'📄')">
-                <div class="event-icon">📄</div>
-                <div class="event-info">
-                  <div class="event-name">Downloaded Whitepaper</div>
-                  <div class="event-pts">+30 score points</div>
-                </div>
-              </button>
-              <button class="event-btn" onclick="fireEvent('pricing',50,'💰')">
-                <div class="event-icon">💰</div>
-                <div class="event-info">
-                  <div class="event-name">Visited Pricing Page</div>
-                  <div class="event-pts">+50 score points</div>
-                </div>
-              </button>
-              <button class="event-btn" onclick="fireEvent('demo',70,'🎯')">
-                <div class="event-icon">🎯</div>
-                <div class="event-info">
-                  <div class="event-name">Requested Demo</div>
-                  <div class="event-pts">+70 score points</div>
-                </div>
-              </button>
-            </div>
-          </div>
-          <div class="event-card">
-            <div class="event-card-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Engagement Events
-            </div>
-            <div class="event-btn-group">
-              <button class="event-btn" onclick="fireEvent('webinar',25,'🎓')">
-                <div class="event-icon">🎓</div>
-                <div class="event-info">
-                  <div class="event-name">Attended Webinar</div>
-                  <div class="event-pts">+25 score points</div>
-                </div>
-              </button>
-              <button class="event-btn" onclick="fireEvent('email',15,'✉️')">
-                <div class="event-icon">✉️</div>
-                <div class="event-info">
-                  <div class="event-name">Opened Email Campaign</div>
-                  <div class="event-pts">+15 score points</div>
-                </div>
-              </button>
-              <button class="event-btn" onclick="fireEvent('contact',60,'📞')">
-                <div class="event-icon">📞</div>
-                <div class="event-info">
-                  <div class="event-name">Contact Sales Form</div>
-                  <div class="event-pts">+60 score points</div>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),#7cb9ff)"></div>
+        <div class="kpi-label">Action</div><div class="kpi-value" id="s1-kpi3" style="color:var(--blue);font-size:18px;padding-top:8px">—</div><div class="kpi-sub" id="s1-kpi3s">No event fired</div>
       </div>
-
-      <!-- PIPELINE FLOW -->
-      <div>
-        <div class="section-title" style="margin-bottom:12px">③ Autonomous <span>Pipeline</span></div>
-        <div class="pipeline-flow">
-          <div class="flow-steps" id="flow-steps">
-            <div class="flow-step" id="step-0">
-              <div class="flow-node idle" id="node-0">📥</div>
-              <div class="flow-label">Prospect<br>Captured</div>
-              <div class="flow-sublabel" id="sub-0">—</div>
-            </div>
-            <div class="flow-step" id="step-1">
-              <div class="flow-node idle" id="node-1">⚡</div>
-              <div class="flow-label">Event<br>Triggered</div>
-              <div class="flow-sublabel" id="sub-1">—</div>
-            </div>
-            <div class="flow-step" id="step-2">
-              <div class="flow-node idle" id="node-2">🧠</div>
-              <div class="flow-label">AI Lead<br>Scoring</div>
-              <div class="flow-sublabel" id="sub-2">—</div>
-            </div>
-            <div class="flow-step" id="step-3">
-              <div class="flow-node idle" id="node-3">📊</div>
-              <div class="flow-label">Campaign<br>Selected</div>
-              <div class="flow-sublabel" id="sub-3">—</div>
-            </div>
-            <div class="flow-step" id="step-4">
-              <div class="flow-node idle" id="node-4">🚀</div>
-              <div class="flow-label">Campaign<br>Executed</div>
-              <div class="flow-sublabel" id="sub-4">—</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LOG TERMINAL -->
-      <div>
-        <div class="section-title" style="margin-bottom:10px">④ System <span>Log</span></div>
-        <div class="log-terminal">
-          <div class="log-header">
-            <div class="log-dots">
-              <div class="log-dot" style="background:#ff5f57"></div>
-              <div class="log-dot" style="background:#febc2e"></div>
-              <div class="log-dot" style="background:#28c840"></div>
-            </div>
-            <div class="log-title">amo-engine · autonomous-pipeline.log</div>
-          </div>
-          <div class="log-body" id="log-body">
-            <div class="log-line">
-              <span class="log-time">00:00:00</span>
-              <span class="log-tag tag-info">SYS</span>
-              <span class="log-msg">AMO Engine initialized. Awaiting event trigger...<span class="log-cursor"></span></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RESULTS -->
-      <div>
-        <div class="section-title" style="margin-bottom:12px">⑤ Execution <span>Results</span></div>
-        <div class="result-grid">
-          <div class="result-card" id="lead-card">
-            <div class="result-card-header">
-              <div class="result-card-title">
-                <div class="result-icon icon-lead">👤</div>
-                Lead Management
-              </div>
-              <span class="badge" id="lead-status-badge" style="background:var(--blue-dim);color:var(--blue);display:none">NEW</span>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Lead ID</div>
-              <div class="rf-value mono" id="res-lead-id">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Company</div>
-              <div class="rf-value" id="res-company">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Status</div>
-              <div class="rf-value green" id="res-status">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Assigned Owner</div>
-              <div class="rf-value" id="res-owner">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Score Breakdown</div>
-              <div class="score-breakdown" id="score-breakdown">
-                <div class="sb-row"><span class="sb-label">Company Size</span><div class="sb-bar"><div class="sb-fill" id="sb-size" style="width:0%"></div></div><span class="sb-val" id="sbv-size">0</span></div>
-                <div class="sb-row"><span class="sb-label">Industry Fit</span><div class="sb-bar"><div class="sb-fill" id="sb-ind" style="width:0%"></div></div><span class="sb-val" id="sbv-ind">0</span></div>
-                <div class="sb-row"><span class="sb-label">Product Interest</span><div class="sb-bar"><div class="sb-fill" id="sb-prod" style="width:0%"></div></div><span class="sb-val" id="sbv-prod">0</span></div>
-                <div class="sb-row"><span class="sb-label">Behavioral Signal</span><div class="sb-bar"><div class="sb-fill" id="sb-beh" style="width:0%"></div></div><span class="sb-val" id="sbv-beh">0</span></div>
-              </div>
-              <div style="margin-top:8px">
-                <div class="score-gauge"><div class="score-gauge-fill" id="score-gauge-fill"></div></div>
-                <div style="display:flex;justify-content:space-between;margin-top:4px">
-                  <span style="font-size:9px;color:var(--text3)">Total Score</span>
-                  <span style="font-family:var(--mono);font-size:11px;color:var(--orange)" id="total-score-display">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="result-card" id="campaign-card">
-            <div class="result-card-header">
-              <div class="result-card-title">
-                <div class="result-icon icon-campaign">📢</div>
-                Campaign Management
-              </div>
-              <span class="badge" id="camp-status-badge" style="background:var(--orange-dim);color:var(--orange);display:none">AUTO</span>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Campaign Name</div>
-              <div class="rf-value orange" id="res-campaign">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Campaign Type</div>
-              <div class="rf-value" id="res-camp-type">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Channel</div>
-              <div class="rf-value" id="res-channel">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Priority</div>
-              <div class="rf-value" id="res-priority">—</div>
-            </div>
-            <div class="result-field">
-              <div class="rf-label">Email Preview</div>
-              <div class="email-preview" id="email-preview" style="display:none">
-                <div class="email-subject" id="email-subject">—</div>
-                <div id="email-body">—</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
-  </main>
+
+    <div>
+      <div class="section-label">① Select <span>Prospect</span></div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="tbl-title">Prospect Dataset <span class="tbl-count">6 records</span></div>
+          <span style="font-size:10px;color:var(--text3)">Click row to select</span>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Company</th><th>Size</th><th>Industry</th><th>Interest</th><th>Behavior</th><th>Score</th></tr></thead>
+          <tbody id="s1-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">② Trigger <span>Event</span></div>
+      <div class="two-col">
+        <div class="panel-card">
+          <div class="panel-title">⚡ Inbound Events</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s1-btn1" onclick="s1FireEvent('whitepaper',30,'📄','Downloaded Whitepaper')"><span class="event-icon-sm">📄</span><div class="event-info"><div class="event-name">Downloaded Whitepaper</div><div class="event-pts">+30 pts</div></div></button>
+            <button class="event-btn" id="s1-btn2" onclick="s1FireEvent('pricing',50,'💰','Visited Pricing Page')"><span class="event-icon-sm">💰</span><div class="event-info"><div class="event-name">Visited Pricing Page</div><div class="event-pts">+50 pts</div></div></button>
+            <button class="event-btn" id="s1-btn3" onclick="s1FireEvent('demo',70,'🎯','Requested Demo')"><span class="event-icon-sm">🎯</span><div class="event-info"><div class="event-name">Requested Demo</div><div class="event-pts">+70 pts</div></div></button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-title">🕐 Engagement Events</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s1-btn4" onclick="s1FireEvent('webinar',25,'🎓','Attended Webinar')"><span class="event-icon-sm">🎓</span><div class="event-info"><div class="event-name">Attended Webinar</div><div class="event-pts">+25 pts</div></div></button>
+            <button class="event-btn" id="s1-btn5" onclick="s1FireEvent('email',15,'✉️','Opened Email')"><span class="event-icon-sm">✉️</span><div class="event-info"><div class="event-name">Opened Email Campaign</div><div class="event-pts">+15 pts</div></div></button>
+            <button class="event-btn" id="s1-btn6" onclick="s1FireEvent('contact',60,'📞','Contact Sales Form')"><span class="event-icon-sm">📞</span><div class="event-info"><div class="event-name">Contact Sales Form</div><div class="event-pts">+60 pts</div></div></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">③ Autonomous <span>Pipeline</span></div>
+      <div class="pipeline-wrap">
+        <div class="flow-steps" id="s1-flow">
+          <div class="flow-step" id="s1-step0"><div class="flow-node idle" id="s1-node0">📥</div><div class="flow-label">Prospect Captured</div><div class="flow-sublabel" id="s1-sub0">—</div></div>
+          <div class="flow-step" id="s1-step1"><div class="flow-node idle" id="s1-node1">⚡</div><div class="flow-label">Event Triggered</div><div class="flow-sublabel" id="s1-sub1">—</div></div>
+          <div class="flow-step" id="s1-step2"><div class="flow-node idle" id="s1-node2">🧠</div><div class="flow-label">AI Lead Scoring</div><div class="flow-sublabel" id="s1-sub2">—</div></div>
+          <div class="flow-step" id="s1-step3"><div class="flow-node idle" id="s1-node3">📊</div><div class="flow-label">Campaign Selected</div><div class="flow-sublabel" id="s1-sub3">—</div></div>
+          <div class="flow-step" id="s1-step4"><div class="flow-node idle" id="s1-node4">🚀</div><div class="flow-label">Campaign Executed</div><div class="flow-sublabel" id="s1-sub4">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-terminal" id="s1-log-wrap">
+      <div class="log-header"><div class="log-dots"><div class="log-dot" style="background:#ff5f57"></div><div class="log-dot" style="background:#febc2e"></div><div class="log-dot" style="background:#28c840"></div></div><div class="log-title-bar">acquisition-pipeline.log</div></div>
+      <div class="log-body" id="s1-log"><div class="log-line"><span class="log-time">00:00</span><span class="log-tag tag-info">SYS</span><span class="log-msg">Acquisition engine ready. Select a prospect...<span class="log-cursor"></span></span></div></div>
+    </div>
+
+    <div>
+      <div class="section-label">④ Execution <span>Results</span></div>
+      <div class="result-grid">
+        <div class="result-card" id="s1-lead-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--blue-dim)">👤</div>Lead Management</div><span class="badge badge-ent" id="s1-lead-badge" style="display:none">NEW LEAD</span></div>
+          <div class="result-field"><div class="rf-label">Lead ID</div><div class="rf-value mono" id="s1-leadid">—</div></div>
+          <div class="result-field"><div class="rf-label">Company</div><div class="rf-value" id="s1-company">—</div></div>
+          <div class="result-field"><div class="rf-label">Status</div><div class="rf-value green" id="s1-status">—</div></div>
+          <div class="result-field"><div class="rf-label">Owner</div><div class="rf-value" id="s1-owner">—</div></div>
+          <div class="result-field"><div class="rf-label">Score Breakdown</div>
+            <div style="margin-top:6px">
+              <div class="sb-row"><span class="sb-label">Company Size</span><div class="sb-bar"><div class="sb-fill" id="s1-sb1" style="width:0%"></div></div><span class="sb-val" id="s1-sv1">0</span></div>
+              <div class="sb-row"><span class="sb-label">Industry Fit</span><div class="sb-bar"><div class="sb-fill" id="s1-sb2" style="width:0%"></div></div><span class="sb-val" id="s1-sv2">0</span></div>
+              <div class="sb-row"><span class="sb-label">Product Interest</span><div class="sb-bar"><div class="sb-fill" id="s1-sb3" style="width:0%"></div></div><span class="sb-val" id="s1-sv3">0</span></div>
+              <div class="sb-row"><span class="sb-label">Event Bonus</span><div class="sb-bar"><div class="sb-fill" id="s1-sb4" style="width:0%"></div></div><span class="sb-val" id="s1-sv4">0</span></div>
+            </div>
+            <div class="score-gauge" style="margin-top:8px"><div class="score-gauge-fill" id="s1-gauge"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:3px"><span style="font-size:8px;color:var(--text3)">Total</span><span style="font-family:var(--mono);font-size:10px;color:var(--orange)" id="s1-total">—</span></div>
+          </div>
+        </div>
+        <div class="result-card" id="s1-camp-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--orange-dim)">📢</div>Campaign Management</div><span class="badge" style="background:var(--orange-dim);color:var(--orange);display:none" id="s1-camp-badge">AUTO</span></div>
+          <div class="result-field"><div class="rf-label">Campaign</div><div class="rf-value orange" id="s1-campname">—</div></div>
+          <div class="result-field"><div class="rf-label">Type</div><div class="rf-value" id="s1-camptype">—</div></div>
+          <div class="result-field"><div class="rf-label">Channel</div><div class="rf-value" id="s1-channel">—</div></div>
+          <div class="result-field"><div class="rf-label">Priority</div><div class="rf-value" id="s1-priority">—</div></div>
+          <div class="result-field"><div class="rf-label">Email Preview</div>
+            <div class="email-preview" id="s1-email" style="display:none"><div class="email-subject" id="s1-esubj">—</div><div id="s1-ebody">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PAGE: S2 — UPSELL & CROSS-SELL -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="scenario-page" id="page-s2">
+    <div class="kpi-row">
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),#7cb9ff)"></div>
+        <div class="kpi-label">Avg Monthly Usage</div><div class="kpi-value" id="s2-kpi1" style="color:var(--blue)">—</div><div class="kpi-sub">GB / customer</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#7fffb2)"></div>
+        <div class="kpi-label">Upsell Opportunity</div><div class="kpi-value" id="s2-kpi2" style="color:var(--green);font-size:20px;padding-top:6px">—</div><div class="kpi-sub" id="s2-kpi2s">Awaiting analysis</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--orange2))"></div>
+        <div class="kpi-label">Revenue Uplift</div><div class="kpi-value" id="s2-kpi3" style="color:var(--orange)">—</div><div class="kpi-sub">Per converted customer</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">① Customer <span>Usage Data</span></div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="tbl-title">Customer Dataset <span class="tbl-count">6 customers</span></div>
+          <span style="font-size:10px;color:var(--text3)">Select a customer to analyze</span>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Customer</th><th>Plan</th><th>Data Usage</th><th>Trend</th><th>CLV</th><th>Upsell Score</th></tr></thead>
+          <tbody id="s2-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">② AI <span>Signal Detection</span></div>
+      <div class="two-col">
+        <div class="panel-card">
+          <div class="panel-title">📡 Usage Pattern Events</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s2-btn1" onclick="s2FireEvent('data_spike','Data Usage Spike Detected',35,'📊')"><span class="event-icon-sm">📊</span><div class="event-info"><div class="event-name">Data Usage Spike (+40%)</div><div class="event-pts">High propensity signal</div></div></button>
+            <button class="event-btn" id="s2-btn2" onclick="s2FireEvent('plan_limit','Near Plan Limit',50,'⚠️')"><span class="event-icon-sm">⚠️</span><div class="event-info"><div class="event-name">Near Monthly Data Limit</div><div class="event-pts">Strong upsell trigger</div></div></button>
+            <button class="event-btn" id="s2-btn3" onclick="s2FireEvent('premium_browse','Browsed Premium Plans',60,'👀')"><span class="event-icon-sm">👀</span><div class="event-info"><div class="event-name">Browsed Premium Plans</div><div class="event-pts">Intent signal detected</div></div></button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-title">🤝 Cross-sell Signals</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s2-btn4" onclick="s2FireEvent('roaming','International Roaming Usage',30,'✈️')"><span class="event-icon-sm">✈️</span><div class="event-info"><div class="event-name">International Roaming Used</div><div class="event-pts">Roaming bundle opportunity</div></div></button>
+            <button class="event-btn" id="s2-btn5" onclick="s2FireEvent('family','Multiple Devices Detected',25,'👨‍👩‍👧')"><span class="event-icon-sm">👨‍👩‍👧</span><div class="event-info"><div class="event-name">Multiple Devices on Account</div><div class="event-pts">Family plan opportunity</div></div></button>
+            <button class="event-btn" id="s2-btn6" onclick="s2FireEvent('tv','Streaming Service Usage',20,'📺')"><span class="event-icon-sm">📺</span><div class="event-info"><div class="event-name">Heavy Streaming Usage</div><div class="event-pts">Content bundle signal</div></div></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">③ Autonomous <span>Pipeline</span></div>
+      <div class="pipeline-wrap">
+        <div class="flow-steps">
+          <div class="flow-step" id="s2-step0"><div class="flow-node idle" id="s2-node0">📡</div><div class="flow-label">Usage Monitored</div><div class="flow-sublabel" id="s2-sub0">—</div></div>
+          <div class="flow-step" id="s2-step1"><div class="flow-node idle" id="s2-node1">🧬</div><div class="flow-label">Digital Twin Analysis</div><div class="flow-sublabel" id="s2-sub1">—</div></div>
+          <div class="flow-step" id="s2-step2"><div class="flow-node idle" id="s2-node2">🤖</div><div class="flow-label">Next Best Offer</div><div class="flow-sublabel" id="s2-sub2">—</div></div>
+          <div class="flow-step" id="s2-step3"><div class="flow-node idle" id="s2-node3">📦</div><div class="flow-label">Offer Generated</div><div class="flow-sublabel" id="s2-sub3">—</div></div>
+          <div class="flow-step" id="s2-step4"><div class="flow-node idle" id="s2-node4">📲</div><div class="flow-label">Delivered via Channel</div><div class="flow-sublabel" id="s2-sub4">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-terminal">
+      <div class="log-header"><div class="log-dots"><div class="log-dot" style="background:#ff5f57"></div><div class="log-dot" style="background:#febc2e"></div><div class="log-dot" style="background:#28c840"></div></div><div class="log-title-bar">upsell-engine.log</div></div>
+      <div class="log-body" id="s2-log"><div class="log-line"><span class="log-time">00:00</span><span class="log-tag tag-info">SYS</span><span class="log-msg">Upsell engine ready. Select a customer...<span class="log-cursor"></span></span></div></div>
+    </div>
+
+    <div>
+      <div class="section-label">④ Next Best <span>Offers</span></div>
+      <div class="result-grid">
+        <div class="result-card" id="s2-nbo-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--blue-dim)">🤖</div>AI Recommendation</div><span class="badge badge-ent" id="s2-nbo-badge" style="display:none">NBO</span></div>
+          <div class="result-field"><div class="rf-label">Model</div><div class="rf-value mono" id="s2-model">—</div></div>
+          <div class="result-field"><div class="rf-label">Lookalike Community</div><div class="rf-value" id="s2-community">—</div></div>
+          <div class="result-field"><div class="rf-label">Confidence Score</div><div class="rf-value orange" id="s2-conf">—</div></div>
+          <div class="result-field"><div class="rf-label">Recommended Offers</div>
+            <div class="offer-grid" id="s2-offers">
+              <div class="offer-card" id="s2-offer1"><div class="offer-name">—</div><div class="offer-price">—</div><div class="offer-desc">—</div></div>
+              <div class="offer-card" id="s2-offer2"><div class="offer-name">—</div><div class="offer-price">—</div><div class="offer-desc">—</div></div>
+              <div class="offer-card" id="s2-offer3"><div class="offer-name">—</div><div class="offer-price">—</div><div class="offer-desc">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-card" id="s2-camp-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--orange-dim)">📢</div>Campaign Triggered</div><span class="badge" style="background:var(--orange-dim);color:var(--orange);display:none" id="s2-camp-badge">AUTO</span></div>
+          <div class="result-field"><div class="rf-label">Campaign Name</div><div class="rf-value orange" id="s2-campname">—</div></div>
+          <div class="result-field"><div class="rf-label">A/B Test</div><div class="rf-value" id="s2-ab">—</div></div>
+          <div class="result-field"><div class="rf-label">Delivery Channels</div><div class="channel-pills" id="s2-channels"></div></div>
+          <div class="result-field"><div class="rf-label">Expected Uplift</div><div class="rf-value green" id="s2-uplift">—</div></div>
+          <div class="result-field"><div class="rf-label">Message Preview</div>
+            <div class="email-preview" id="s2-msg" style="display:none"><div class="email-subject" id="s2-msubj">—</div><div id="s2-mbody">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PAGE: S3 — CHURN PREVENTION -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="scenario-page" id="page-s3">
+    <div class="kpi-row">
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),#ff9a6c)"></div>
+        <div class="kpi-label">Churn Risk Score</div><div class="kpi-value" id="s3-kpi1" style="color:var(--red)">—</div><div class="kpi-sub">0–100 risk scale</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),#ffb347)"></div>
+        <div class="kpi-label">Risk Tier</div><div class="kpi-value" id="s3-kpi2" style="color:var(--yellow);font-size:18px;padding-top:8px">—</div><div class="kpi-sub" id="s3-kpi2s">Select customer</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#7fffb2)"></div>
+        <div class="kpi-label">Retention Strategy</div><div class="kpi-value" id="s3-kpi3" style="color:var(--green);font-size:14px;padding-top:10px">—</div><div class="kpi-sub" id="s3-kpi3s">Awaiting prediction</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">① Customer <span>Engagement Signals</span></div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="tbl-title">At-Risk Customer Pool <span class="tbl-count">6 customers</span></div>
+          <span style="font-size:10px;color:var(--text3)">Select to analyze churn risk</span>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Customer</th><th>Tenure</th><th>Data Trend</th><th>App Logins</th><th>NPS Score</th><th>Churn Risk</th></tr></thead>
+          <tbody id="s3-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">② Churn <span>Signal Events</span></div>
+      <div class="two-col">
+        <div class="panel-card">
+          <div class="panel-title">📉 Declining Engagement</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s3-btn1" onclick="s3FireEvent('usage_drop','Data Usage Dropped -60%',40)"><span class="event-icon-sm">📉</span><div class="event-info"><div class="event-name">Data Usage Drop -60%</div><div class="event-pts">Strong churn signal</div></div></button>
+            <button class="event-btn" id="s3-btn2" onclick="s3FireEvent('no_login','No App Login 30 Days',35)"><span class="event-icon-sm">👻</span><div class="event-info"><div class="event-name">No App Login (30 days)</div><div class="event-pts">Disengagement signal</div></div></button>
+            <button class="event-btn" id="s3-btn3" onclick="s3FireEvent('complaint','Support Complaint Filed',45)"><span class="event-icon-sm">😤</span><div class="event-info"><div class="event-name">Support Complaint Filed</div><div class="event-pts">Sentiment alert</div></div></button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-title">🚨 High-Risk Signals</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s3-btn4" onclick="s3FireEvent('competitor','Competitor Website Visited',50)"><span class="event-icon-sm">🔍</span><div class="event-info"><div class="event-name">Competitor Website Visited</div><div class="event-pts">Critical churn indicator</div></div></button>
+            <button class="event-btn" id="s3-btn5" onclick="s3FireEvent('cancel_page','Cancellation Page Visited',70)"><span class="event-icon-sm">❌</span><div class="event-info"><div class="event-name">Cancellation Page Visited</div><div class="event-pts">Immediate action required</div></div></button>
+            <button class="event-btn" id="s3-btn6" onclick="s3FireEvent('negative_nps','NPS Score < 4 Submitted',55)"><span class="event-icon-sm">⭐</span><div class="event-info"><div class="event-name">NPS Score &lt; 4 Submitted</div><div class="event-pts">Detractor identified</div></div></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">③ Autonomous <span>Pipeline</span></div>
+      <div class="pipeline-wrap">
+        <div class="flow-steps">
+          <div class="flow-step" id="s3-step0"><div class="flow-node idle" id="s3-node0">📡</div><div class="flow-label">Signal Detected</div><div class="flow-sublabel" id="s3-sub0">—</div></div>
+          <div class="flow-step" id="s3-step1"><div class="flow-node idle" id="s3-node1">🔮</div><div class="flow-label">Churn Prediction</div><div class="flow-sublabel" id="s3-sub1">—</div></div>
+          <div class="flow-step" id="s3-step2"><div class="flow-node idle" id="s3-node2">🧬</div><div class="flow-label">Community Detection</div><div class="flow-sublabel" id="s3-sub2">—</div></div>
+          <div class="flow-step" id="s3-step3"><div class="flow-node idle" id="s3-node3">🛡️</div><div class="flow-label">Retention Strategy</div><div class="flow-sublabel" id="s3-sub3">—</div></div>
+          <div class="flow-step" id="s3-step4"><div class="flow-node idle" id="s3-node4">🎁</div><div class="flow-label">Incentive Delivered</div><div class="flow-sublabel" id="s3-sub4">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-terminal">
+      <div class="log-header"><div class="log-dots"><div class="log-dot" style="background:#ff5f57"></div><div class="log-dot" style="background:#febc2e"></div><div class="log-dot" style="background:#28c840"></div></div><div class="log-title-bar">churn-prevention.log</div></div>
+      <div class="log-body" id="s3-log"><div class="log-line"><span class="log-time">00:00</span><span class="log-tag tag-info">SYS</span><span class="log-msg">Churn prevention engine active. Monitoring...<span class="log-cursor"></span></span></div></div>
+    </div>
+
+    <div>
+      <div class="section-label">④ Retention <span>Results</span></div>
+      <div class="result-grid">
+        <div class="result-card" id="s3-risk-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--red-dim)">🔮</div>Churn Risk Analysis</div><span class="badge badge-high" id="s3-risk-badge" style="display:none">HIGH RISK</span></div>
+          <div class="result-field"><div class="rf-label">Customer</div><div class="rf-value" id="s3-custname">—</div></div>
+          <div class="result-field"><div class="rf-label">Overall Risk Score</div><div class="rf-value red" id="s3-riskscore">—</div></div>
+          <div class="result-field"><div class="rf-label">Risk Factors</div>
+            <div class="risk-meter-wrap" id="s3-risks">
+              <div class="risk-row"><span class="risk-label">Usage Decline</span><div class="risk-bar"><div class="risk-fill red" id="s3-r1" style="width:0%"></div></div><span class="risk-val" id="s3-rv1">0%</span></div>
+              <div class="risk-row"><span class="risk-label">Engagement Drop</span><div class="risk-bar"><div class="risk-fill red" id="s3-r2" style="width:0%"></div></div><span class="risk-val" id="s3-rv2">0%</span></div>
+              <div class="risk-row"><span class="risk-label">Sentiment Score</span><div class="risk-bar"><div class="risk-fill red" id="s3-r3" style="width:0%"></div></div><span class="risk-val" id="s3-rv3">0%</span></div>
+              <div class="risk-row"><span class="risk-label">Event Signal</span><div class="risk-bar"><div class="risk-fill red" id="s3-r4" style="width:0%"></div></div><span class="risk-val" id="s3-rv4">0%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-card" id="s3-ret-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--green-dim)">🎁</div>Retention Campaign</div><span class="badge" style="background:var(--green-dim);color:var(--green);display:none" id="s3-ret-badge">AUTO</span></div>
+          <div class="result-field"><div class="rf-label">Strategy</div><div class="rf-value green" id="s3-strategy">—</div></div>
+          <div class="result-field"><div class="rf-label">Incentive</div><div class="rf-value" id="s3-incentive">—</div></div>
+          <div class="result-field"><div class="rf-label">Loyalty Reward</div><div class="rf-value purple" id="s3-loyalty">—</div></div>
+          <div class="result-field"><div class="rf-label">Channel</div><div class="rf-value" id="s3-channel">—</div></div>
+          <div class="result-field"><div class="rf-label">Predicted Save Rate</div><div class="rf-value green" id="s3-saverate">—</div></div>
+          <div class="result-field"><div class="rf-label">Message</div>
+            <div class="email-preview" id="s3-msg" style="display:none"><div class="email-subject" id="s3-msubj">—</div><div id="s3-mbody">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PAGE: S4 — LOYALTY & CLV -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="scenario-page" id="page-s4">
+    <div class="kpi-row">
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),#d4a0ff)"></div>
+        <div class="kpi-label">Customer Lifetime Value</div><div class="kpi-value" id="s4-kpi1" style="color:var(--purple)">—</div><div class="kpi-sub">Predicted 12-month</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),#ffb347)"></div>
+        <div class="kpi-label">Loyalty Tier</div><div class="kpi-value" id="s4-kpi2" style="color:var(--yellow);font-size:20px;padding-top:6px">—</div><div class="kpi-sub" id="s4-kpi2s">Select customer</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#7fffb2)"></div>
+        <div class="kpi-label">Engagement Score</div><div class="kpi-value" id="s4-kpi3" style="color:var(--green)">—</div><div class="kpi-sub">0–100 scale</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">① High-Value <span>Customer Identification</span></div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="tbl-title">Customer CLV Ranking <span class="tbl-count">6 customers</span></div>
+          <span style="font-size:10px;color:var(--text3)">Select to view loyalty strategy</span>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Customer</th><th>Tier</th><th>CLV</th><th>Points</th><th>Services</th><th>Engagement</th></tr></thead>
+          <tbody id="s4-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">② Engagement <span>Signals</span></div>
+      <div class="two-col">
+        <div class="panel-card">
+          <div class="panel-title">💎 Loyalty Events</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s4-btn1" onclick="s4FireEvent('milestone','Service Anniversary Reached',30)"><span class="event-icon-sm">🎂</span><div class="event-info"><div class="event-name">Service Anniversary Reached</div><div class="event-pts">Loyalty milestone reward</div></div></button>
+            <button class="event-btn" id="s4-btn2" onclick="s4FireEvent('referral','Referred New Customer',50)"><span class="event-icon-sm">🤝</span><div class="event-info"><div class="event-name">Referred New Customer</div><div class="event-pts">Ambassador program trigger</div></div></button>
+            <button class="event-btn" id="s4-btn3" onclick="s4FireEvent('multi_service','Added 3rd Service',40)"><span class="event-icon-sm">➕</span><div class="event-info"><div class="event-name">Adopted Additional Service</div><div class="event-pts">CLV growth signal</div></div></button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-title">📈 CLV Growth Triggers</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s4-btn4" onclick="s4FireEvent('high_spend','High Spend Month',45)"><span class="event-icon-sm">💳</span><div class="event-info"><div class="event-name">Above-Average Spend Month</div><div class="event-pts">Premium tier candidate</div></div></button>
+            <button class="event-btn" id="s4-btn5" onclick="s4FireEvent('points_near','Near Points Threshold',25)"><span class="event-icon-sm">⭐</span><div class="event-info"><div class="event-name">Near Points Tier Threshold</div><div class="event-pts">Tier upgrade opportunity</div></div></button>
+            <button class="event-btn" id="s4-btn6" onclick="s4FireEvent('family_plan','Family Plan Expansion',35)"><span class="event-icon-sm">👨‍👩‍👧‍👦</span><div class="event-info"><div class="event-name">Family Plan Added Member</div><div class="event-pts">Household value growth</div></div></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">③ Autonomous <span>Pipeline</span></div>
+      <div class="pipeline-wrap">
+        <div class="flow-steps">
+          <div class="flow-step" id="s4-step0"><div class="flow-node idle" id="s4-node0">📡</div><div class="flow-label">Signal Captured</div><div class="flow-sublabel" id="s4-sub0">—</div></div>
+          <div class="flow-step" id="s4-step1"><div class="flow-node idle" id="s4-node1">📊</div><div class="flow-label">CLV Calculated</div><div class="flow-sublabel" id="s4-sub1">—</div></div>
+          <div class="flow-step" id="s4-step2"><div class="flow-node idle" id="s4-node2">🧬</div><div class="flow-label">Digital Twin Match</div><div class="flow-sublabel" id="s4-sub2">—</div></div>
+          <div class="flow-step" id="s4-step3"><div class="flow-node idle" id="s4-node3">🏆</div><div class="flow-label">Reward Assigned</div><div class="flow-sublabel" id="s4-sub3">—</div></div>
+          <div class="flow-step" id="s4-step4"><div class="flow-node idle" id="s4-node4">📲</div><div class="flow-label">Campaign Launched</div><div class="flow-sublabel" id="s4-sub4">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-terminal">
+      <div class="log-header"><div class="log-dots"><div class="log-dot" style="background:#ff5f57"></div><div class="log-dot" style="background:#febc2e"></div><div class="log-dot" style="background:#28c840"></div></div><div class="log-title-bar">loyalty-engine.log</div></div>
+      <div class="log-body" id="s4-log"><div class="log-line"><span class="log-time">00:00</span><span class="log-tag tag-purple">LYL</span><span class="log-msg">Loyalty engine active. Monitoring customer value...<span class="log-cursor"></span></span></div></div>
+    </div>
+
+    <div>
+      <div class="section-label">④ Loyalty <span>Results</span></div>
+      <div class="result-grid">
+        <div class="result-card" id="s4-clv-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--purple-dim)">💎</div>CLV Analysis</div><span class="badge" style="background:var(--purple-dim);color:var(--purple);display:none" id="s4-clv-badge">HIGH VALUE</span></div>
+          <div class="result-field"><div class="rf-label">Customer</div><div class="rf-value" id="s4-custname">—</div></div>
+          <div class="result-field"><div class="rf-label">Current Tier</div><div class="rf-value purple" id="s4-tier">—</div></div>
+          <div class="result-field"><div class="rf-label">Predicted CLV (12m)</div><div class="rf-value orange" id="s4-clv">—</div></div>
+          <div class="result-field"><div class="rf-label">Loyalty Points</div><div class="rf-value mono" id="s4-points">—</div></div>
+          <div class="result-field"><div class="rf-label">Tier Progression</div>
+            <div class="loyalty-tiers" id="s4-tiers">
+              <div class="tier-card" id="s4-t1"><div class="tier-icon">🥉</div><div class="tier-name" style="color:var(--text3)">Bronze</div><div class="tier-pts">—</div></div>
+              <div class="tier-card" id="s4-t2"><div class="tier-icon">🥈</div><div class="tier-name" style="color:#c0c0c0">Silver</div><div class="tier-pts">—</div></div>
+              <div class="tier-card" id="s4-t3"><div class="tier-icon">🥇</div><div class="tier-name" style="color:var(--yellow)">Gold</div><div class="tier-pts">—</div></div>
+              <div class="tier-card" id="s4-t4"><div class="tier-icon">💎</div><div class="tier-name" style="color:var(--purple)">Platinum</div><div class="tier-pts">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-card" id="s4-reward-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--yellow-dim)">🏆</div>Loyalty Campaign</div><span class="badge" style="background:var(--yellow-dim);color:var(--yellow);display:none" id="s4-reward-badge">PERSONALIZED</span></div>
+          <div class="result-field"><div class="rf-label">Campaign Type</div><div class="rf-value purple" id="s4-camptype">—</div></div>
+          <div class="result-field"><div class="rf-label">Reward Offered</div><div class="rf-value orange" id="s4-reward">—</div></div>
+          <div class="result-field"><div class="rf-label">Service Incentive</div><div class="rf-value" id="s4-service-inc">—</div></div>
+          <div class="result-field"><div class="rf-label">Expected CLV Uplift</div><div class="rf-value green" id="s4-clv-uplift">—</div></div>
+          <div class="result-field"><div class="rf-label">Message</div>
+            <div class="email-preview" id="s4-msg" style="display:none"><div class="email-subject" id="s4-msubj">—</div><div id="s4-mbody">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PAGE: S5 — CAMPAIGN OPTIMIZATION -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="scenario-page" id="page-s5">
+    <div class="kpi-row">
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yellow),#ffb347)"></div>
+        <div class="kpi-label">Campaigns Analyzed</div><div class="kpi-value" id="s5-kpi1" style="color:var(--yellow)">—</div><div class="kpi-sub">Historical dataset</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#7fffb2)"></div>
+        <div class="kpi-label">Best Performing</div><div class="kpi-value" id="s5-kpi2" style="color:var(--green);font-size:16px;padding-top:8px">—</div><div class="kpi-sub" id="s5-kpi2s">Run analysis first</div>
+      </div>
+      <div class="kpi-card"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--orange2))"></div>
+        <div class="kpi-label">Cost Reduction</div><div class="kpi-value" id="s5-kpi3" style="color:var(--orange)">—</div><div class="kpi-sub">vs manual operations</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">① Historical <span>Campaign Performance</span></div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="tbl-title">Campaign History <span class="tbl-count">6 campaigns</span></div>
+          <span style="font-size:10px;color:var(--text3)">Click to run A/B analysis</span>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Campaign Name</th><th>Segment</th><th>Channel</th><th>Send Time</th><th>Open Rate</th><th>Conversion</th></tr></thead>
+          <tbody id="s5-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">② AI <span>Optimization Actions</span></div>
+      <div class="two-col">
+        <div class="panel-card">
+          <div class="panel-title">🔬 Analysis Actions</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s5-btn1" onclick="s5Action('segment','Audience Segment Analysis')"><span class="event-icon-sm">👥</span><div class="event-info"><div class="event-name">Analyze Audience Segments</div><div class="event-pts">Find best performing groups</div></div></button>
+            <button class="event-btn" id="s5-btn2" onclick="s5Action('channel','Channel Performance Analysis')"><span class="event-icon-sm">📡</span><div class="event-info"><div class="event-name">Evaluate Channel Mix</div><div class="event-pts">Email vs Push vs SMS</div></div></button>
+            <button class="event-btn" id="s5-btn3" onclick="s5Action('timing','Send Time Optimization')"><span class="event-icon-sm">⏰</span><div class="event-info"><div class="event-name">Optimize Send Times</div><div class="event-pts">Day & hour analysis</div></div></button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-title">⚡ Optimization Actions</div>
+          <div class="event-btn-group">
+            <button class="event-btn" id="s5-btn4" onclick="s5Action('abtest','Create A/B Test Variations')"><span class="event-icon-sm">🧪</span><div class="event-info"><div class="event-name">Generate A/B Test Variants</div><div class="event-pts">Subject line & content</div></div></button>
+            <button class="event-btn" id="s5-btn5" onclick="s5Action('realtime','Real-time Budget Shift')"><span class="event-icon-sm">💰</span><div class="event-info"><div class="event-name">Auto-shift Budget to Winners</div><div class="event-pts">Dynamic allocation</div></div></button>
+            <button class="event-btn" id="s5-btn6" onclick="s5Action('predict','Predict Next Best Campaign')"><span class="event-icon-sm">🔮</span><div class="event-info"><div class="event-name">Predict Next Best Campaign</div><div class="event-pts">AI recommendation</div></div></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">③ Autonomous <span>Pipeline</span></div>
+      <div class="pipeline-wrap">
+        <div class="flow-steps">
+          <div class="flow-step" id="s5-step0"><div class="flow-node idle" id="s5-node0">📊</div><div class="flow-label">Data Ingested</div><div class="flow-sublabel" id="s5-sub0">—</div></div>
+          <div class="flow-step" id="s5-step1"><div class="flow-node idle" id="s5-node1">🤖</div><div class="flow-label">AI Evaluation</div><div class="flow-sublabel" id="s5-sub1">—</div></div>
+          <div class="flow-step" id="s5-step2"><div class="flow-node idle" id="s5-node2">🧪</div><div class="flow-label">A/B Variants</div><div class="flow-sublabel" id="s5-sub2">—</div></div>
+          <div class="flow-step" id="s5-step3"><div class="flow-node idle" id="s5-node3">🏆</div><div class="flow-label">Winner Selected</div><div class="flow-sublabel" id="s5-sub3">—</div></div>
+          <div class="flow-step" id="s5-step4"><div class="flow-node idle" id="s5-node4">🚀</div><div class="flow-label">Auto-deployed</div><div class="flow-sublabel" id="s5-sub4">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-terminal">
+      <div class="log-header"><div class="log-dots"><div class="log-dot" style="background:#ff5f57"></div><div class="log-dot" style="background:#febc2e"></div><div class="log-dot" style="background:#28c840"></div></div><div class="log-title-bar">optimization-engine.log</div></div>
+      <div class="log-body" id="s5-log"><div class="log-line"><span class="log-time">00:00</span><span class="log-tag tag-warn">OPT</span><span class="log-msg">Campaign optimization engine ready...<span class="log-cursor"></span></span></div></div>
+    </div>
+
+    <div>
+      <div class="section-label">④ A/B Test <span>Results & Recommendation</span></div>
+      <div class="result-grid">
+        <div class="result-card" id="s5-ab-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--yellow-dim)">🧪</div>A/B Test Results</div><span class="badge" style="background:var(--yellow-dim);color:var(--yellow);display:none" id="s5-ab-badge">LIVE TEST</span></div>
+          <div class="result-field"><div class="rf-label">Test Name</div><div class="rf-value" id="s5-testname">—</div></div>
+          <div class="ab-grid" id="s5-ab-grid">
+            <div class="ab-card" id="s5-var-a">
+              <div class="ab-label" style="color:var(--blue)">Variant A</div>
+              <div class="ab-metric"><div class="ab-metric-label">Open Rate</div><div class="ab-metric-val" id="s5-a-open">—</div></div>
+              <div class="ab-metric"><div class="ab-metric-label">Conversion</div><div class="ab-metric-val" id="s5-a-conv">—</div></div>
+              <div class="ab-metric"><div class="ab-metric-label">Revenue</div><div class="ab-metric-val" id="s5-a-rev">—</div></div>
+            </div>
+            <div class="ab-card" id="s5-var-b">
+              <div class="ab-label" style="color:var(--orange)">Variant B</div>
+              <div class="ab-metric"><div class="ab-metric-label">Open Rate</div><div class="ab-metric-val" id="s5-b-open">—</div></div>
+              <div class="ab-metric"><div class="ab-metric-label">Conversion</div><div class="ab-metric-val" id="s5-b-conv">—</div></div>
+              <div class="ab-metric"><div class="ab-metric-label">Revenue</div><div class="ab-metric-val" id="s5-b-rev">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-card" id="s5-rec-card">
+          <div class="result-card-header"><div class="result-card-title"><div class="result-icon" style="background:var(--green-dim)">🏆</div>AI Recommendation</div><span class="badge" style="background:var(--green-dim);color:var(--green);display:none" id="s5-rec-badge">OPTIMIZED</span></div>
+          <div class="result-field"><div class="rf-label">Winning Variant</div><div class="rf-value green" id="s5-winner">—</div></div>
+          <div class="result-field"><div class="rf-label">Best Segment</div><div class="rf-value" id="s5-segment">—</div></div>
+          <div class="result-field"><div class="rf-label">Best Channel</div><div class="rf-value" id="s5-channel">—</div></div>
+          <div class="result-field"><div class="rf-label">Optimal Send Time</div><div class="rf-value mono" id="s5-time">—</div></div>
+          <div class="result-field"><div class="rf-label">Efficiency Gain</div><div class="rf-value green" id="s5-efficiency">—</div></div>
+          <div class="result-field"><div class="rf-label">Auto-deploy Status</div><div class="rf-value orange" id="s5-deploy">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
 </div>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────────────
-const prospects = [
-  {id:'P-1001',name:'Ahmet Yılmaz',company:'TechRetail A.Ş.',size:'SME',industry:'Retail',product:'Fiber',behavior:'Website Visit',sizeScore:20,indScore:15,prodScore:25,behScore:10},
-  {id:'P-1002',name:'Sarah Mitchell',company:'GlobalFinance Corp',size:'Enterprise',industry:'Finance',product:'Cloud',behavior:'Pricing Page',sizeScore:40,indScore:30,prodScore:35,behScore:25},
-  {id:'P-1003',name:'Marco Rossi',company:'LogiFlow Ltd',size:'SME',industry:'Logistics',product:'IoT',behavior:'None',sizeScore:20,indScore:20,prodScore:20,behScore:0},
-  {id:'P-1004',name:'Zeynep Kaya',company:'MegaTelekom',size:'Enterprise',industry:'Telecom',product:'Fiber',behavior:'Demo Request',sizeScore:40,indScore:35,prodScore:30,behScore:40},
-  {id:'P-1005',name:'James Cooper',company:'HealthTech Inc',size:'Mid-Market',industry:'Healthcare',product:'Cloud',behavior:'Webinar',sizeScore:30,indScore:25,prodScore:30,behScore:15},
-  {id:'P-1006',name:'Fatma Demir',company:'EduSmart',size:'SME',industry:'Education',product:'IoT',behavior:'Email Open',sizeScore:20,indScore:10,prodScore:15,behScore:8},
-];
-
-const avatarColors=[
-  ['#f26522','#7a3010'],['#4a9eff','#1a3a6a'],['#00e5a0','#006644'],
-  ['#ffd166','#7a6010'],['#b96eff','#4a2070'],['#ff7eb3','#7a2040']
-];
-
-const campaigns={
-  high:{
-    name:'Enterprise Acquisition Campaign',type:'Acquisition',channel:'Email + LinkedIn + SDR Call',priority:'🔴 High Priority',
-    subject:'Transform Your Business with Enterprise-Grade Solutions',
-    body:"Dear {name},\n\nOur AI has identified your company as an ideal fit for our Enterprise solutions. Based on your recent activity, we'd like to schedule a personalized executive briefing.\n\nLet's discuss how we can accelerate your digital transformation."
-  },
-  mid:{
-    name:'Nurturing Journey — Mid-Market',type:'Nurture',channel:'Email Sequence',priority:'🟡 Medium Priority',
-    subject:'Discover How {company} Can Scale with Our Platform',
-    body:"Hi {name},\n\nWe noticed your interest in our solutions. We've curated a set of resources and case studies specifically relevant to the {industry} industry.\n\nReady to explore the possibilities?"
-  },
-  low:{
-    name:'Awareness Campaign',type:'Awareness',channel:'Retargeting Ads',priority:'🟢 Low Priority',
-    subject:'See What\'s New at Our Platform',
-    body:"Hi {name},\n\nThank you for your interest! We'd love to share some resources about how companies like yours are benefiting from modern digital solutions."
-  }
-};
-
-const owners=['Sarah K. (Enterprise Sales)','Mike R. (SMB Team)','Lisa T. (Mid-Market)','Ahmed B. (Enterprise Sales)'];
-
-// ─── STATE ───────────────────────────────────────────────────────
-let selectedProspect=null;
-let campaignsFired=0;
-let converted=0;
-let currentEventPts=0;
+// ══════════════════════════════════════════════════════
+// GLOBAL STATE & UTILS
+// ══════════════════════════════════════════════════════
+let globalStats={run:0,camp:0,value:0};
 let pipelineRunning=false;
-let logTime=0;
+let logTimers={s1:0,s2:0,s3:0,s4:0,s5:0};
 
-// ─── INIT ────────────────────────────────────────────────────────
-function init(){
-  renderTable();
-  renderSidebar();
-}
+const avatarColors=[['#f26522','#3a1508'],['#4a9eff','#0a1e3a'],['#00e5a0','#003322'],['#ffd166','#3a2e08'],['#b96eff','#2a0e50'],['#ff7eb3','#3a0820']];
 
-function renderTable(){
-  const tbody=document.getElementById('prospect-table');
-  tbody.innerHTML='';
-  prospects.forEach((p,i)=>{
-    const baseScore=p.sizeScore+p.indScore+p.prodScore+p.behScore;
-    const pct=Math.min(100,baseScore/140*100);
-    const col=avatarColors[i%avatarColors.length];
-    const fillCol=baseScore>70?'var(--orange)':baseScore>40?'var(--yellow)':'var(--text3)';
-    const tr=document.createElement('tr');
-    tr.onclick=()=>selectProspect(i,tr);
-    tr.dataset.idx=i;
-    tr.innerHTML=`
-      <td class="mono">${p.id}</td>
-      <td style="font-weight:600;color:var(--text)">${p.company}</td>
-      <td><span class="badge ${p.size==='Enterprise'?'badge-ent':'badge-sme'}">${p.size}</span></td>
-      <td>${p.industry}</td>
-      <td>${p.product}</td>
-      <td>${p.behavior}</td>
-      <td>
-        <div class="score-bar-wrap">
-          <div class="score-mini"><div class="score-mini-fill" style="width:${pct}%;background:${fillCol}"></div></div>
-          <span class="mono" style="font-size:10px;color:${fillCol}">${baseScore}</span>
-        </div>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
 
-function renderSidebar(){
-  const el=document.getElementById('sidebar-prospects');
-  el.innerHTML='';
-  prospects.forEach((p,i)=>{
-    const baseScore=p.sizeScore+p.indScore+p.prodScore+p.behScore;
-    const col=avatarColors[i%avatarColors.length];
-    const scoreCol=baseScore>70?'var(--orange)':baseScore>40?'var(--yellow)':'var(--text3)';
-    const div=document.createElement('div');
-    div.className='prospect-item';
-    div.dataset.idx=i;
-    div.onclick=()=>selectProspect(i,null);
-    div.innerHTML=`
-      <div class="p-avatar" style="background:${col[1]};color:${col[0]}">${p.name.split(' ').map(n=>n[0]).join('')}</div>
-      <div class="p-info">
-        <div class="p-name">${p.name}</div>
-        <div class="p-company">${p.company}</div>
-      </div>
-      <div class="p-score-badge" style="background:rgba(242,101,34,0.1);color:${scoreCol}">${baseScore}</div>`;
-    el.appendChild(div);
-  });
-}
-
-// ─── SELECT PROSPECT ─────────────────────────────────────────────
-function selectProspect(idx, tr){
-  if(pipelineRunning) return;
-  selectedProspect=prospects[idx];
-
-  // highlight table row
-  document.querySelectorAll('#prospect-table tr').forEach(r=>r.classList.remove('highlighted'));
-  document.querySelectorAll('.prospect-item').forEach(r=>r.classList.remove('selected'));
-  if(tr) tr.classList.add('highlighted');
-  document.querySelectorAll('.prospect-item').forEach(r=>{
-    if(parseInt(r.dataset.idx)===idx) r.classList.add('selected');
-  });
-  document.querySelectorAll('#prospect-table tr').forEach(r=>{
-    if(parseInt(r.dataset.idx)===idx) r.classList.add('highlighted');
-  });
-
-  // reset event buttons
-  document.querySelectorAll('.event-btn').forEach(b=>b.classList.remove('fired'));
-
-  // show banner
-  const col=avatarColors[idx%avatarColors.length];
-  document.getElementById('selected-banner').style.display='flex';
-  document.getElementById('selected-banner').className='selected-prospect-banner';
-  document.getElementById('selected-banner').innerHTML=`
-    <div class="spb-avatar" style="background:${col[1]};color:${col[0]}">${selectedProspect.name.split(' ').map(n=>n[0]).join('')}</div>
-    <div class="spb-info">
-      <div class="spb-name">${selectedProspect.name} — ${selectedProspect.company}</div>
-      <div class="spb-meta">${selectedProspect.size} · ${selectedProspect.industry} · Interest: ${selectedProspect.product}</div>
-    </div>
-    <span style="font-size:11px;color:var(--text3)">Select an event below ↓</span>`;
-
-  // reset pipeline
-  resetPipeline(false);
-  addLog('INFO','PROSPECT',`Selected: <strong>${selectedProspect.name}</strong> (${selectedProspect.company}) — Base score loaded`,'info');
-}
-
-// ─── FIRE EVENT ──────────────────────────────────────────────────
-function fireEvent(type, pts, icon){
-  if(!selectedProspect){showToast('⚠️ Select a prospect first','Please click a row in the prospect table.','warn');return;}
-  if(pipelineRunning) return;
-
-  currentEventPts=pts;
-  const eventNames={whitepaper:'Downloaded Whitepaper',pricing:'Visited Pricing Page',demo:'Requested Demo',webinar:'Attended Webinar',email:'Opened Email Campaign',contact:'Contact Sales Form'};
-  const eName=eventNames[type];
-
-  // mark btn fired
-  document.querySelectorAll('.event-btn').forEach(b=>b.classList.remove('fired'));
-  event.currentTarget.classList.add('fired');
-
-  addLog('INFO','EVENT',`<strong>${icon} ${eName}</strong> received for ${selectedProspect.name} (+${pts} pts)`,'info');
-  runPipeline(eName, pts);
-}
-
-// ─── PIPELINE RUNNER ─────────────────────────────────────────────
-async function runPipeline(eventName, eventPts){
-  pipelineRunning=true;
-
-  const p=selectedProspect;
-  const totalScore=p.sizeScore+p.indScore+p.prodScore+p.behScore+eventPts;
-
-  // Step 0: Prospect captured
-  setStep(0,'running');
-  await delay(600);
-  document.getElementById('sub-0').textContent=p.id;
-  setStep(0,'done');
-  addLog('OK','CAPTURE',`Prospect profile loaded: <strong>${p.company}</strong> [${p.size}, ${p.industry}]`,'ok');
-  await delay(300);
-
-  // Step 1: Event trigger
-  setStep(1,'running');
-  await delay(700);
-  document.getElementById('sub-1').textContent='+'+eventPts+' pts';
-  setStep(1,'done');
-  addLog('OK','EVENT',`Event processed: <strong>${eventName}</strong>. Score delta: +${eventPts}`,'ok');
-  await delay(300);
-
-  // Step 2: AI Scoring
-  setStep(2,'running');
-  addLog('AI','SCORE','Running lead scoring model...',  'ai');
-  await delay(400);
-  addLog('AI','SCORE',`Company size weight: <strong>+${p.sizeScore}</strong>`, 'ai');
-  await delay(300);
-  addLog('AI','SCORE',`Industry fit weight: <strong>+${p.indScore}</strong>`, 'ai');
-  await delay(300);
-  addLog('AI','SCORE',`Product interest weight: <strong>+${p.prodScore}</strong>`, 'ai');
-  await delay(300);
-  addLog('AI','SCORE',`Behavioral signal weight: <strong>+${p.behScore}</strong>`, 'ai');
-  await delay(300);
-  addLog('AI','SCORE',`Event bonus: <strong>+${eventPts}</strong>`, 'ai');
-  await delay(400);
-  addLog('OK','SCORE',`Final Lead Score: <strong>${totalScore}</strong>/200`, 'ok');
-  document.getElementById('sub-2').textContent='Score: '+totalScore;
-  setStep(2,'done');
-
-  // Update KPIs
-  document.getElementById('kpi-score').textContent=totalScore;
-  let qual,qualSub,actionText,actionSub;
-  if(totalScore>=80){
-    qual='HIGH VALUE';qualSub='🔴 Acquisition Target';
-    actionText='ACQUIRE';actionSub='Trigger acquisition campaign';
-    document.getElementById('kpi-value')
-  } else if(totalScore>=50){
-    qual='QUALIFIED';qualSub='🟡 Nurture & Convert';
-    actionText='NURTURE';actionSub='Send nurturing sequence';
-  } else {
-    qual='LOW';qualSub='🟢 Awareness needed';
-    actionText='AWARE';actionSub='Retargeting campaign';
-  }
-  document.getElementById('kpi-qual').textContent=qual;
-  document.getElementById('kpi-qual-sub').textContent=qualSub;
-  document.getElementById('kpi-action').textContent=actionText;
-  document.getElementById('kpi-action-sub').textContent=actionSub;
-
-  await delay(400);
-
-  // Step 3: Campaign selection
-  setStep(3,'running');
-  addLog('AI','DECIDE',`Score ${totalScore} → evaluating campaign decision tree...`, 'ai');
-  await delay(600);
-
-  let campKey=totalScore>=80?'high':totalScore>=50?'mid':'low';
-  const camp=campaigns[campKey];
-  document.getElementById('sub-3').textContent=campKey.toUpperCase();
-  setStep(3,'done');
-  addLog('OK','DECIDE',`Campaign selected: <strong>${camp.name}</strong>`, 'ok');
-  await delay(300);
-
-  // Step 4: Execution
-  setStep(4,'running');
-  const leadId='LEAD-'+Math.floor(Math.random()*9000+1000);
-  const owner=owners[Math.floor(Math.random()*owners.length)];
-  addLog('OK','LEAD',`Lead created: <strong>${leadId}</strong>. Owner: ${owner}`, 'ok');
-  await delay(500);
-  addLog('OK','CAMPAIGN',`Campaign <strong>"${camp.name}"</strong> triggered via ${camp.channel}`, 'ok');
-  await delay(400);
-  addLog('OK','NOTIFY',`Sales team notified. Status: <strong>OPEN</strong>`, 'ok');
-  document.getElementById('sub-4').textContent='LAUNCHED';
-  setStep(4,'done');
-
-  // Fill result cards
-  document.getElementById('lead-card').classList.add('revealed');
-  document.getElementById('campaign-card').classList.add('revealed');
-  document.getElementById('lead-status-badge').style.display='inline-flex';
-  document.getElementById('camp-status-badge').style.display='inline-flex';
-
-  document.getElementById('res-lead-id').textContent=leadId;
-  document.getElementById('res-company').textContent=p.company;
-  document.getElementById('res-status').textContent='● Open — Assigned';
-  document.getElementById('res-owner').textContent=owner;
-
-  // Score bars
-  setTimeout(()=>{
-    const maxPts=50;
-    setBar('sb-size','sbv-size',p.sizeScore,maxPts);
-    setBar('sb-ind','sbv-ind',p.indScore,maxPts);
-    setBar('sb-prod','sbv-prod',p.prodScore,maxPts);
-    setBar('sb-beh','sbv-beh',p.behScore+eventPts,maxPts);
-    document.getElementById('score-gauge-fill').style.width=Math.min(100,totalScore/140*100)+'%';
-    document.getElementById('total-score-display').textContent=totalScore+' / 140+';
-  },200);
-
-  document.getElementById('res-campaign').textContent=camp.name;
-  document.getElementById('res-camp-type').textContent=camp.type;
-  document.getElementById('res-channel').textContent=camp.channel;
-  document.getElementById('res-priority').textContent=camp.priority;
-
-  const emailEl=document.getElementById('email-preview');
-  emailEl.style.display='block';
-  document.getElementById('email-subject').textContent=camp.subject.replace('{company}',p.company);
-  document.getElementById('email-body').textContent=camp.body.replace('{name}',p.name.split(' ')[0]).replace('{company}',p.company).replace('{industry}',p.industry);
-
-  // stats
-  campaignsFired++;
-  document.getElementById('stat-campaigns').textContent=campaignsFired;
-  if(totalScore>=80){converted++;document.getElementById('stat-converted').textContent=converted}
-
-  showToast('🚀 Campaign Launched!', `${camp.name} triggered for ${p.company}`, 'ok');
-  pipelineRunning=false;
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────────
-function setStep(idx, state){
-  const node=document.getElementById('node-'+idx);
-  const step=document.getElementById('step-'+idx);
-  node.className='flow-node '+state;
-  step.className='flow-step '+(state==='done'?'complete':state==='running'?'active':'');
-}
-
-function setBar(fillId, valId, val, max){
-  document.getElementById(fillId).style.width=Math.min(100,val/max*100)+'%';
-  document.getElementById(valId).textContent=val;
-}
-
-function addLog(type, tag, msg, cls){
-  logTime+=Math.floor(Math.random()*3+1);
-  const hh=String(Math.floor(logTime/60)).padStart(2,'0');
-  const mm=String(logTime%60).padStart(2,'0');
-  const body=document.getElementById('log-body');
-
-  // Remove cursor from last line
+function addLog(scenario,type,tag,msg,cls){
+  logTimers[scenario]+=Math.floor(Math.random()*3+1);
+  const t=logTimers[scenario];
+  const h=String(Math.floor(t/60)).padStart(2,'0');
+  const m=String(t%60).padStart(2,'0');
+  const s=String(Math.floor(Math.random()*59)).padStart(2,'0');
+  const body=document.getElementById(scenario+'-log');
   body.querySelectorAll('.log-cursor').forEach(c=>c.remove());
-
   const line=document.createElement('div');
   line.className='log-line';
-  const tagClass={'info':'tag-info','ok':'tag-ok','ai':'tag-ai','warn':'tag-warn'}[cls]||'tag-info';
-  line.innerHTML=`<span class="log-time">${hh}:${mm}:${String(Math.floor(Math.random()*59)).padStart(2,'0')}</span><span class="log-tag ${tagClass}">${tag}</span><span class="log-msg">${msg}<span class="log-cursor"></span></span>`;
+  const tagClass={info:'tag-info',ok:'tag-ok',ai:'tag-ai',warn:'tag-warn',purple:'tag-purple'}[cls]||'tag-info';
+  line.innerHTML=`<span class="log-time">${h}:${m}:${s}</span><span class="log-tag ${tagClass}">${tag}</span><span class="log-msg">${msg}<span class="log-cursor"></span></span>`;
   body.appendChild(line);
   body.scrollTop=body.scrollHeight;
 }
 
-function delay(ms){return new Promise(r=>setTimeout(r,ms))}
-
-function resetPipeline(full=true){
-  for(let i=0;i<5;i++){setStep(i,'idle');document.getElementById('sub-'+i).textContent='—';}
-  if(full){
-    document.getElementById('lead-card').classList.remove('revealed');
-    document.getElementById('campaign-card').classList.remove('revealed');
-    document.getElementById('lead-status-badge').style.display='none';
-    document.getElementById('camp-status-badge').style.display='none';
-    document.getElementById('email-preview').style.display='none';
-    ['res-lead-id','res-company','res-status','res-owner','res-campaign','res-camp-type','res-channel','res-priority'].forEach(id=>document.getElementById(id).textContent='—');
-    document.getElementById('score-gauge-fill').style.width='0%';
-    document.getElementById('total-score-display').textContent='—';
-    ['sb-size','sb-ind','sb-prod','sb-beh'].forEach(id=>document.getElementById(id).style.width='0%');
-    ['sbv-size','sbv-ind','sbv-prod','sbv-beh'].forEach(id=>document.getElementById(id).textContent='0');
-    document.getElementById('kpi-score').textContent='—';
-    document.getElementById('kpi-qual').textContent='—';
-    document.getElementById('kpi-qual-sub').textContent='Awaiting AI scoring';
-    document.getElementById('kpi-action').textContent='—';
-    document.getElementById('kpi-action-sub').textContent='No event triggered yet';
-  }
+function setStep(scenario,idx,state){
+  const node=document.getElementById(scenario+'-node'+idx);
+  const step=document.getElementById(scenario+'-step'+idx);
+  if(!node)return;
+  node.className='flow-node '+state;
+  step.className='flow-step '+(state==='done'?'f-done':state==='running'?'f-active':'');
 }
 
-function resetAll(){
-  pipelineRunning=false;
-  selectedProspect=null;
-  currentEventPts=0;
-  document.getElementById('selected-banner').style.display='none';
-  document.querySelectorAll('#prospect-table tr').forEach(r=>r.classList.remove('highlighted'));
-  document.querySelectorAll('.prospect-item').forEach(r=>r.classList.remove('selected'));
-  document.querySelectorAll('.event-btn').forEach(b=>b.classList.remove('fired'));
-  resetPipeline(true);
-  const body=document.getElementById('log-body');
-  body.innerHTML='';
-  logTime=0;
-  addLog('INFO','SYS','AMO Engine reset. Awaiting event trigger...','info');
+function setSub(scenario,idx,val){
+  const el=document.getElementById(scenario+'-sub'+idx);
+  if(el)el.textContent=val;
 }
 
-let toastTimer;
-function showToast(header, body, type){
-  const el=document.getElementById('toast');
+function revealCard(id){document.getElementById(id).classList.add('revealed')}
+function setVal(id,val){const el=document.getElementById(id);if(el)el.textContent=val}
+function showEl(id){const el=document.getElementById(id);if(el)el.style.display=''}
+
+function setBar(fillId,valId,pct,displayVal){
+  const f=document.getElementById(fillId);
+  const v=document.getElementById(valId);
+  if(f)setTimeout(()=>{f.style.width=pct+'%'},200);
+  if(v)v.textContent=displayVal||pct+'%';
+}
+
+function showToast(header,body,color){
+  const t=document.getElementById('toast');
   document.getElementById('toast-header').innerHTML=header;
   document.getElementById('toast-body').textContent=body;
-  el.style.borderColor=type==='ok'?'rgba(0,229,160,0.3)':type==='warn'?'rgba(255,209,102,0.3)':'var(--border)';
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
+  t.style.borderColor=color||'var(--border)';
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT=setTimeout(()=>t.classList.remove('show'),4000);
 }
 
-init();
+function updateGlobalStats(){
+  document.getElementById('stat-run').textContent=globalStats.run;
+  document.getElementById('stat-camp').textContent=globalStats.camp;
+  document.getElementById('stat-value').textContent='$'+globalStats.value.toLocaleString();
+}
+
+// ── PAGE NAVIGATION ──
+function showPage(page){
+  document.querySelectorAll('.scenario-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-scenario').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  const titles={overview:['OVERVIEW','Autonomous Marketing Lifecycle'],s1:['SCENARIO 01','Prospect Acquisition'],s2:['SCENARIO 02','AI-Driven Upsell & Cross-Sell'],s3:['SCENARIO 03','Proactive Churn Prevention'],s4:['SCENARIO 04','Loyalty-Driven CLV Growth'],s5:['SCENARIO 05','Autonomous Campaign Optimization']};
+  const t=titles[page]||['—','—'];
+  document.getElementById('topbar-badge').textContent=t[0];
+  document.getElementById('topbar-title').textContent=t[1];
+}
+
+function resetCurrent(){}
+
+// ══════════════════════════════════════════════════════
+// SCENARIO 1 DATA & LOGIC
+// ══════════════════════════════════════════════════════
+const s1Prospects=[
+  {id:'P-1001',company:'TechRetail A.Ş.',size:'SME',industry:'Retail',product:'Fiber',behavior:'Website Visit',ss:20,is:15,ps:25,bs:10},
+  {id:'P-1002',company:'GlobalFinance Corp',size:'Enterprise',industry:'Finance',product:'Cloud',behavior:'Pricing Page',ss:40,is:30,ps:35,bs:25},
+  {id:'P-1003',company:'LogiFlow Ltd',size:'SME',industry:'Logistics',product:'IoT',behavior:'None',ss:20,is:20,ps:20,bs:0},
+  {id:'P-1004',company:'MegaTelekom',size:'Enterprise',industry:'Telecom',product:'Fiber',behavior:'Demo Request',ss:40,is:35,ps:30,bs:40},
+  {id:'P-1005',company:'HealthTech Inc',size:'Mid-Market',industry:'Healthcare',product:'Cloud',behavior:'Webinar',ss:30,is:25,ps:30,bs:15},
+  {id:'P-1006',company:'EduSmart',size:'SME',industry:'Education',product:'IoT',behavior:'Email Open',ss:20,is:10,ps:15,bs:8},
+];
+const s1Campaigns={high:{name:'Enterprise Acquisition Campaign',type:'Acquisition',channel:'Email + LinkedIn + SDR Call',priority:'🔴 High Priority',subj:'Transform Your Business with Enterprise-Grade Solutions',body:'Based on your recent activity, our AI has identified your company as a high-value prospect. We\'d like to schedule a personalized executive briefing to discuss how we can accelerate your growth.'},mid:{name:'Mid-Market Nurturing Journey',type:'Nurture',channel:'Email Sequence + Retargeting',priority:'🟡 Medium Priority',subj:'See How Companies Like Yours Are Growing with AMO',body:'We noticed your interest in our solutions. We\'ve curated resources specifically relevant to your industry that can help you evaluate the right fit.'},low:{name:'Awareness & Education Campaign',type:'Awareness',channel:'Retargeting Ads',priority:'🟢 Low Priority',subj:'Discover What\'s Possible with Modern Connectivity',body:'Thank you for your interest! We\'d love to share how modern digital solutions are transforming businesses in your space.'}};
+const s1Owners=['Sarah K. (Enterprise)','Mike R. (SMB)','Lisa T. (Mid-Market)','Ahmed B. (Enterprise)'];
+
+let s1Selected=null;
+
+function initS1Table(){
+  const tbody=document.getElementById('s1-table');
+  s1Prospects.forEach((p,i)=>{
+    const base=p.ss+p.is+p.ps+p.bs;
+    const pct=Math.min(100,base/140*100);
+    const col=base>70?'var(--orange)':base>40?'var(--yellow)':'var(--text3)';
+    const sizeClass=p.size==='Enterprise'?'badge-ent':p.size==='Mid-Market'?'badge-pre':'badge-low';
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.onclick=()=>{
+      document.querySelectorAll('#s1-table tr').forEach(r=>r.classList.remove('highlighted'));
+      tr.classList.add('highlighted');
+      s1Selected=p;
+      document.querySelectorAll('[id^=s1-btn]').forEach(b=>b.classList.remove('fired'));
+      s1ResetPipeline();
+      addLog('s1','INFO','PROSPECT',`Selected: <strong>${p.company}</strong> [${p.size}, ${p.industry}]`,'info');
+    };
+    tr.innerHTML=`<td class="mono">${p.id}</td><td style="color:var(--text);font-weight:600">${p.company}</td><td><span class="badge ${sizeClass}">${p.size}</span></td><td>${p.industry}</td><td>${p.product}</td><td>${p.behavior}</td><td><div class="score-bar-wrap"><div class="score-mini"><div class="score-mini-fill" style="width:${pct}%;background:${col}"></div></div><span class="mono" style="font-size:10px;color:${col}">${base}</span></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function s1ResetPipeline(){
+  for(let i=0;i<5;i++){setStep('s1',i,'idle');setSub('s1',i,'—');}
+  ['s1-lead-card','s1-camp-card'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+  ['s1-lead-badge','s1-camp-badge'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('s1-email').style.display='none';
+  document.getElementById('s1-gauge').style.width='0%';
+  ['s1-leadid','s1-company','s1-status','s1-owner','s1-campname','s1-camptype','s1-channel','s1-priority','s1-total'].forEach(id=>setVal(id,'—'));
+  ['s1-sb1','s1-sb2','s1-sb3','s1-sb4'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width='0%'});
+  ['s1-sv1','s1-sv2','s1-sv3','s1-sv4'].forEach(id=>setVal(id,'0'));
+  setVal('s1-kpi1','—');setVal('s1-kpi2','—');setVal('s1-kpi3','—');
+}
+
+async function s1FireEvent(type,pts,icon,name){
+  if(!s1Selected){showToast('⚠️ Select a prospect first','Click a row in the table.','rgba(255,209,102,0.3)');return;}
+  if(pipelineRunning)return;
+  pipelineRunning=true;
+  document.querySelectorAll('[id^=s1-btn]').forEach(b=>b.classList.remove('fired'));
+  event.currentTarget.classList.add('fired');
+  const p=s1Selected;
+  const total=p.ss+p.is+p.ps+p.bs+pts;
+
+  addLog('s1','INFO','EVENT',`<strong>${icon} ${name}</strong> received (+${pts} pts)`,'info');
+  setStep('s1',0,'running');await delay(500);setSub('s1',0,p.id);setStep('s1',0,'done');
+  addLog('s1','OK','CAPTURE',`Prospect profile loaded: <strong>${p.company}</strong>`,'ok');
+  setStep('s1',1,'running');await delay(600);setSub('s1',1,'+'+pts+' pts');setStep('s1',1,'done');
+  addLog('s1','OK','EVENT',`Event processed. Score delta: +${pts}`,'ok');
+  setStep('s1',2,'running');
+  addLog('s1','AI','SCORE','Running lead scoring model...','ai');
+  await delay(400);addLog('s1','AI','SCORE',`Size: +${p.ss} | Industry: +${p.is} | Product: +${p.ps} | Behavior: +${p.bs}`,'ai');
+  await delay(400);addLog('s1','AI','SCORE',`Event bonus: +${pts} → <strong>Total: ${total}</strong>`,'ai');
+  setSub('s1',2,'Score: '+total);setStep('s1',2,'done');
+  setVal('s1-kpi1',total);
+  let ck,qual,action;
+  if(total>=80){ck='high';qual='HIGH VALUE';action='ACQUIRE';}else if(total>=50){ck='mid';qual='QUALIFIED';action='NURTURE';}else{ck='low';qual='AWARENESS';action='EDUCATE';}
+  setVal('s1-kpi2',qual);setVal('s1-kpi3',action);
+  setStep('s1',3,'running');await delay(600);
+  const camp=s1Campaigns[ck];
+  setSub('s1',3,ck.toUpperCase());setStep('s1',3,'done');
+  addLog('s1','OK','DECIDE',`Campaign selected: <strong>${camp.name}</strong>`,'ok');
+  setStep('s1',4,'running');await delay(500);
+  const lid='LEAD-'+Math.floor(Math.random()*9000+1000);
+  const owner=s1Owners[Math.floor(Math.random()*s1Owners.length)];
+  addLog('s1','OK','LEAD',`Lead created: <strong>${lid}</strong>. Owner: ${owner}`,'ok');
+  addLog('s1','OK','CAMP',`Campaign <strong>"${camp.name}"</strong> triggered`,'ok');
+  setSub('s1',4,'LAUNCHED');setStep('s1',4,'done');
+  revealCard('s1-lead-card');revealCard('s1-camp-card');
+  showEl('s1-lead-badge');showEl('s1-camp-badge');
+  setVal('s1-leadid',lid);setVal('s1-company',p.company);setVal('s1-status','● Open — Assigned');setVal('s1-owner',owner);
+  setTimeout(()=>{
+    setBar('s1-sb1','s1-sv1',Math.min(100,p.ss/50*100),p.ss);
+    setBar('s1-sb2','s1-sv2',Math.min(100,p.is/50*100),p.is);
+    setBar('s1-sb3','s1-sv3',Math.min(100,p.ps/50*100),p.ps);
+    setBar('s1-sb4','s1-sv4',Math.min(100,pts/70*100),pts);
+    document.getElementById('s1-gauge').style.width=Math.min(100,total/160*100)+'%';
+    setVal('s1-total',total+' pts');
+  },300);
+  setVal('s1-campname',camp.name);setVal('s1-camptype',camp.type);setVal('s1-channel',camp.channel);setVal('s1-priority',camp.priority);
+  document.getElementById('s1-email').style.display='block';
+  document.getElementById('s1-esubj').textContent=camp.subj;
+  document.getElementById('s1-ebody').textContent=camp.body;
+  document.getElementById('nav-s1').classList.add('completed');
+  globalStats.run++;globalStats.camp++;globalStats.value+=total*120;updateGlobalStats();
+  showToast('🚀 Campaign Launched!',`${camp.name} triggered for ${p.company}`,'rgba(242,101,34,0.3)');
+  pipelineRunning=false;
+}
+
+// ══════════════════════════════════════════════════════
+// SCENARIO 2 DATA & LOGIC
+// ══════════════════════════════════════════════════════
+const s2Customers=[
+  {id:'C-2001',name:'Ali Vural',plan:'Basic 10GB',usage:'18.4 GB',trend:'↑ +84%',clv:'$420',score:88},
+  {id:'C-2002',name:'Emma Wilson',plan:'Standard 20GB',usage:'19.8 GB',trend:'↑ +12%',clv:'$840',score:74},
+  {id:'C-2003',name:'Kemal Aydın',plan:'Basic 10GB',usage:'9.2 GB',trend:'→ Stable',clv:'$310',score:42},
+  {id:'C-2004',name:'Priya Patel',plan:'Premium 50GB',usage:'47 GB',trend:'↑ +5%',clv:'$1,240',score:65},
+  {id:'C-2005',name:'Lucas Müller',plan:'Basic 10GB',usage:'8.1 GB',trend:'↓ -10%',clv:'$280',score:28},
+  {id:'C-2006',name:'Yuki Tanaka',plan:'Standard 20GB',usage:'31.2 GB',trend:'↑ +56%',clv:'$760',score:91},
+];
+let s2Selected=null;
+
+function initS2Table(){
+  const tbody=document.getElementById('s2-table');
+  s2Customers.forEach((c,i)=>{
+    const col=c.score>70?'var(--orange)':c.score>40?'var(--yellow)':'var(--text3)';
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.onclick=()=>{
+      document.querySelectorAll('#s2-table tr').forEach(r=>r.classList.remove('highlighted'));
+      tr.classList.add('highlighted');
+      s2Selected=c;
+      document.querySelectorAll('[id^=s2-btn]').forEach(b=>b.classList.remove('fired'));
+      s2ResetPipeline();
+      setVal('s2-kpi1',c.usage);
+      addLog('s2','INFO','CUSTOMER',`Selected: <strong>${c.name}</strong> | Plan: ${c.plan} | Usage: ${c.usage}`,'info');
+    };
+    tr.innerHTML=`<td class="mono">${c.id}</td><td style="color:var(--text);font-weight:600">${c.name}</td><td>${c.plan}</td><td style="font-family:var(--mono);font-size:10px">${c.usage}</td><td style="color:${c.trend.includes('↑')?'var(--green)':c.trend.includes('↓')?'var(--red)':'var(--text2)'}">${c.trend}</td><td style="color:var(--green)">${c.clv}</td><td><div class="score-bar-wrap"><div class="score-mini"><div class="score-mini-fill" style="width:${c.score}%;background:${col}"></div></div><span class="mono" style="font-size:10px;color:${col}">${c.score}</span></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function s2ResetPipeline(){
+  for(let i=0;i<5;i++){setStep('s2',i,'idle');setSub('s2',i,'—');}
+  ['s2-nbo-card','s2-camp-card'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+  ['s2-nbo-badge','s2-camp-badge'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('s2-msg').style.display='none';
+  document.getElementById('s2-channels').innerHTML='';
+  ['s2-kpi2','s2-kpi3','s2-model','s2-community','s2-conf','s2-campname','s2-ab','s2-uplift'].forEach(id=>setVal(id,'—'));
+  ['s2-offer1','s2-offer2','s2-offer3'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+}
+
+async function s2FireEvent(type,name,score,icon){
+  if(!s2Selected){showToast('⚠️ Select a customer first','Click a row in the table.','rgba(255,209,102,0.3)');return;}
+  if(pipelineRunning)return;
+  pipelineRunning=true;
+  document.querySelectorAll('[id^=s2-btn]').forEach(b=>b.classList.remove('fired'));
+  event.currentTarget.classList.add('fired');
+  const c=s2Selected;
+  addLog('s2','INFO','EVENT',`<strong>${icon} ${name}</strong> detected for ${c.name}`,'info');
+  setStep('s2',0,'running');await delay(500);setSub('s2',0,c.usage);setStep('s2',0,'done');
+  addLog('s2','OK','STREAM',`Usage event captured: <strong>${c.usage}</strong> this month`,'ok');
+  setStep('s2',1,'running');
+  addLog('s2','AI','TWIN','Digital Twin analyzing usage community...','ai');
+  await delay(700);
+  addLog('s2','AI','TWIN',`Look-alike community: <strong>High Data Users</strong> (${Math.floor(Math.random()*200+300)} similar profiles)`,'ai');
+  setSub('s2',1,'Community found');setStep('s2',1,'done');
+  setStep('s2',2,'running');
+  addLog('s2','AI','NBO','Calculating Next Best Offer...','ai');
+  await delay(600);
+  const offers=type==='data_spike'||type==='plan_limit'?[{n:'Unlimited Plus',p:'$49/mo',d:'Unlimited data, 5G speeds, HD streaming'},{n:'Data Boost 30GB',p:'$35/mo',d:'Extra 30GB top-up bundle'},{n:'Family Share',p:'$79/mo',d:'4 lines, shared 100GB'}]:type==='roaming'?[{n:'Roam Free Europe',p:'$15/mo',d:'Unlimited calls & data in 30 countries'},{n:'Global Pass',p:'$25/mo',d:'Worldwide roaming bundle'},{n:'eSIM Travel',p:'$9.99',d:'Pay-as-you-go eSIM'}]:[{n:'Content Bundle',p:'+$8/mo',d:'Netflix + Spotify included'},{n:'Smart Home Pack',p:'+$12/mo',d:'IoT devices + Cloud storage'},{n:'Premium Shield',p:'+$5/mo',d:'Device insurance + tech support'}];
+  addLog('s2','OK','NBO',`Recommended: <strong>${offers[0].n}</strong> (Best match)`,'ok');
+  setSub('s2',2,offers[0].n);setStep('s2',2,'done');
+  setStep('s2',3,'running');await delay(400);setSub('s2',3,'3 offers');setStep('s2',3,'done');
+  revealCard('s2-nbo-card');showEl('s2-nbo-badge');
+  setVal('s2-model','Digital Twin v2.4 + NBO Model');
+  setVal('s2-community',`High Usage Segment (${Math.floor(Math.random()*200+300)} users)`);
+  setVal('s2-conf',`${Math.floor(Math.random()*10+85)}% confidence`);
+  setVal('s2-kpi2','HIGH PROPENSITY');
+  setTimeout(()=>{
+    ['s2-offer1','s2-offer2','s2-offer3'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.querySelector('.offer-name').textContent=offers[i].n;
+      el.querySelector('.offer-price').textContent=offers[i].p;
+      el.querySelector('.offer-desc').textContent=offers[i].d;
+      if(i===0)el.innerHTML+=`<div class="offer-badge">RECOMMENDED</div>`;
+      setTimeout(()=>el.classList.add('revealed'),i*150);
+    });
+  },200);
+  setStep('s2',4,'running');await delay(500);setSub('s2',4,'SENT');setStep('s2',4,'done');
+  const channels=['Push Notification','SMS','In-App Banner'];
+  const uplift='$'+Math.floor(Math.random()*10+14)+'/mo ARPU';
+  revealCard('s2-camp-card');showEl('s2-camp-badge');
+  setVal('s2-campname',`${c.name} — Personalized Upsell`);
+  setVal('s2-ab','A/B Test: Discount vs Feature-led');
+  setVal('s2-uplift',uplift);setVal('s2-kpi3',uplift);
+  const chDiv=document.getElementById('s2-channels');
+  channels.forEach(ch=>{const d=document.createElement('div');d.className='ch-pill active';d.textContent=ch;chDiv.appendChild(d);});
+  document.getElementById('s2-msg').style.display='block';
+  document.getElementById('s2-msubj').textContent=`${c.name}, you're ready for more — ${offers[0].n}`;
+  document.getElementById('s2-mbody').textContent=`Hi ${c.name.split(' ')[0]}, we noticed you've been using more data than your current plan. We've prepared a personalized offer: ${offers[0].n} at ${offers[0].p}. ${offers[0].d}. Tap to upgrade now.`;
+  document.getElementById('nav-s2').classList.add('completed');
+  addLog('s2','OK','CAMP','Personalized offer delivered via 3 channels','ok');
+  globalStats.run++;globalStats.camp++;globalStats.value+=240;updateGlobalStats();
+  showToast('📈 Upsell Campaign Fired!',`Offer delivered to ${c.name} via ${channels.join(', ')}`,'rgba(74,158,255,0.3)');
+  pipelineRunning=false;
+}
+
+// ══════════════════════════════════════════════════════
+// SCENARIO 3 DATA & LOGIC
+// ══════════════════════════════════════════════════════
+const s3Customers=[
+  {id:'C-3001',name:'Mehmet Çelik',tenure:'6 mo',trend:'↓ -70%',logins:'2/month',nps:'3',risk:82},
+  {id:'C-3002',name:'Sophie Brown',tenure:'2 yr',trend:'↓ -30%',logins:'5/month',nps:'6',risk:55},
+  {id:'C-3003',name:'Arjun Singh',tenure:'8 mo',trend:'→ Stable',logins:'12/month',nps:'8',risk:22},
+  {id:'C-3004',name:'Claudia Rossi',tenure:'1 yr',trend:'↓ -50%',logins:'1/month',nps:'2',risk:91},
+  {id:'C-3005',name:'Björn Hansen',tenure:'3 yr',trend:'↓ -20%',logins:'8/month',nps:'5',risk:38},
+  {id:'C-3006',name:'Aiko Suzuki',tenure:'4 mo',trend:'↓ -80%',logins:'0/month',nps:'1',risk:95},
+];
+let s3Selected=null;
+
+function initS3Table(){
+  const tbody=document.getElementById('s3-table');
+  s3Customers.forEach((c,i)=>{
+    const col=c.risk>70?'var(--red)':c.risk>40?'var(--yellow)':'var(--green)';
+    const bclass=c.risk>70?'badge-high':c.risk>40?'badge-med':'badge-low';
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.onclick=()=>{
+      document.querySelectorAll('#s3-table tr').forEach(r=>r.classList.remove('highlighted'));
+      tr.classList.add('highlighted');
+      s3Selected=c;
+      document.querySelectorAll('[id^=s3-btn]').forEach(b=>b.classList.remove('fired'));
+      s3ResetPipeline();
+      setVal('s3-kpi1',c.risk);
+      addLog('s3','INFO','MONITOR',`Selected: <strong>${c.name}</strong> | Risk: ${c.risk}/100 | NPS: ${c.nps}`,'info');
+    };
+    tr.innerHTML=`<td class="mono">${c.id}</td><td style="color:var(--text);font-weight:600">${c.name}</td><td>${c.tenure}</td><td style="color:${c.trend.includes('↓')?'var(--red)':'var(--text2)'}">${c.trend}</td><td>${c.logins}</td><td style="color:${parseInt(c.nps)<5?'var(--red)':'var(--green)'}">${c.nps}/10</td><td><span class="badge ${bclass}">${c.risk}/100</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function s3ResetPipeline(){
+  for(let i=0;i<5;i++){setStep('s3',i,'idle');setSub('s3',i,'—');}
+  ['s3-risk-card','s3-ret-card'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+  ['s3-risk-badge','s3-ret-badge'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('s3-msg').style.display='none';
+  ['s3-kpi2','s3-kpi3','s3-custname','s3-riskscore','s3-strategy','s3-incentive','s3-loyalty','s3-channel','s3-saverate'].forEach(id=>setVal(id,'—'));
+  ['s3-r1','s3-r2','s3-r3','s3-r4'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width='0%'});
+}
+
+async function s3FireEvent(type,name,signalScore){
+  if(!s3Selected){showToast('⚠️ Select a customer first','Click a row in the table.','rgba(255,209,102,0.3)');return;}
+  if(pipelineRunning)return;
+  pipelineRunning=true;
+  document.querySelectorAll('[id^=s3-btn]').forEach(b=>b.classList.remove('fired'));
+  event.currentTarget.classList.add('fired');
+  const c=s3Selected;
+  const totalRisk=Math.min(100,c.risk+signalScore);
+  addLog('s3','INFO','SIGNAL',`<strong>⚠️ ${name}</strong> detected for ${c.name}`,'warn');
+  setStep('s3',0,'running');await delay(500);setSub('s3',0,'Risk: '+totalRisk);setStep('s3',0,'done');
+  addLog('s3','OK','DETECT',`Churn signal captured. Base risk: ${c.risk} + signal: +${signalScore}`,'ok');
+  setStep('s3',1,'running');
+  addLog('s3','AI','MODEL','Churn Prediction Model running...','ai');
+  await delay(700);addLog('s3','AI','MODEL',`Churn probability: <strong>${totalRisk}%</strong> — ${totalRisk>80?'CRITICAL':'HIGH RISK'}`,'ai');
+  setSub('s3',1,totalRisk+'%');setStep('s3',1,'done');
+  setVal('s3-kpi1',totalRisk);
+  setStep('s3',2,'running');
+  addLog('s3','AI','TWIN','Digital Twin community detection...','ai');
+  await delay(600);addLog('s3','AI','TWIN',`Churn-risk community identified: <strong>${Math.floor(Math.random()*100+80)} similar profiles</strong>`,'ai');
+  setSub('s3',2,'Community found');setStep('s3',2,'done');
+  setStep('s3',3,'running');await delay(500);
+  const isHighRisk=totalRisk>75;
+  const strategy=isHighRisk?'Priority Retention — Immediate Outreach':'Nurture Retention — Soft Re-engagement';
+  const incentive=isHighRisk?'50% Discount — 3 Months':'Free Month + Loyalty Bonus';
+  const loyalty=isHighRisk?'+2,000 Bonus Points':'Tier Upgrade to Gold';
+  const channel=isHighRisk?'Phone Call + SMS + Email':'Email + Push Notification';
+  const saverate=isHighRisk?'72% predicted save rate':'88% predicted save rate';
+  addLog('s3','OK','STRATEGY',`Strategy: <strong>${strategy}</strong>`,'ok');
+  setSub('s3',3,isHighRisk?'PRIORITY':'NURTURE');setStep('s3',3,'done');
+  setStep('s3',4,'running');await delay(500);setSub('s3',4,'SENT');setStep('s3',4,'done');
+  revealCard('s3-risk-card');revealCard('s3-ret-card');
+  showEl('s3-risk-badge');showEl('s3-ret-badge');
+  setVal('s3-custname',c.name);setVal('s3-riskscore',totalRisk+'/100');
+  setVal('s3-kpi2',isHighRisk?'🔴 CRITICAL':'🟡 HIGH RISK');
+  setVal('s3-kpi3',isHighRisk?'Priority Retain':'Soft Re-engage');
+  setTimeout(()=>{
+    setBar('s3-r1','s3-rv1',Math.min(100,c.risk*0.9),Math.round(c.risk*0.9)+'%');
+    setBar('s3-r2','s3-rv2',Math.min(100,signalScore*1.2),Math.round(signalScore*1.2)+'%');
+    setBar('s3-r3','s3-rv3',Math.min(100,(10-parseInt(c.nps))*10),(10-parseInt(c.nps))*10+'%');
+    setBar('s3-r4','s3-rv4',signalScore,signalScore+'%');
+  },200);
+  setVal('s3-strategy',strategy);setVal('s3-incentive',incentive);setVal('s3-loyalty',loyalty);
+  setVal('s3-channel',channel);setVal('s3-saverate',saverate);
+  document.getElementById('s3-msg').style.display='block';
+  document.getElementById('s3-msubj').textContent=`${c.name}, we miss you — here's something special`;
+  document.getElementById('s3-mbody').textContent=`Hi ${c.name.split(' ')[0]}, we value your loyalty. As a thank-you, we're offering you ${incentive}. Plus, you'll earn ${loyalty} on your account. This offer expires in 48 hours.`;
+  document.getElementById('nav-s3').classList.add('completed');
+  addLog('s3','OK','CAMP',`Retention campaign triggered via ${channel}`,'ok');
+  globalStats.run++;globalStats.camp++;globalStats.value+=isHighRisk?800:400;updateGlobalStats();
+  showToast('🛡️ Retention Campaign Active!',`${strategy} triggered for ${c.name}`,'rgba(255,94,108,0.3)');
+  pipelineRunning=false;
+}
+
+// ══════════════════════════════════════════════════════
+// SCENARIO 4 DATA & LOGIC
+// ══════════════════════════════════════════════════════
+const s4Customers=[
+  {id:'C-4001',name:'Tarık Yıldız',tier:'Gold',clv:'$2,400',points:'8,400',services:'4',eng:82},
+  {id:'C-4002',name:'Helen Carter',tier:'Platinum',clv:'$4,800',points:'22,100',services:'6',eng:95},
+  {id:'C-4003',name:'Raj Kumar',tier:'Silver',clv:'$1,100',points:'3,200',services:'2',eng:55},
+  {id:'C-4004',name:'Anna Kowalski',tier:'Bronze',clv:'$680',points:'900',services:'1',eng:32},
+  {id:'C-4005',name:'Carlos Mendez',tier:'Gold',clv:'$3,100',points:'11,800',services:'5',eng:78},
+  {id:'C-4006',name:'Fatou Diallo',tier:'Silver',clv:'$1,450',points:'4,600',services:'3',eng:61},
+];
+const tierColors={Bronze:'var(--text3)',Silver:'#c0c0c0',Gold:'var(--yellow)',Platinum:'var(--purple)'};
+let s4Selected=null;
+
+function initS4Table(){
+  const tbody=document.getElementById('s4-table');
+  s4Customers.forEach((c,i)=>{
+    const col=c.eng>70?'var(--green)':c.eng>40?'var(--yellow)':'var(--text3)';
+    const tc=tierColors[c.tier];
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.onclick=()=>{
+      document.querySelectorAll('#s4-table tr').forEach(r=>r.classList.remove('highlighted'));
+      tr.classList.add('highlighted');
+      s4Selected=c;
+      document.querySelectorAll('[id^=s4-btn]').forEach(b=>b.classList.remove('fired'));
+      s4ResetPipeline();
+      setVal('s4-kpi1',c.clv);setVal('s4-kpi2',c.tier);setVal('s4-kpi3',c.eng);
+      addLog('s4','INFO','MONITOR',`Selected: <strong>${c.name}</strong> | Tier: ${c.tier} | CLV: ${c.clv}`,'purple');
+    };
+    tr.innerHTML=`<td class="mono">${c.id}</td><td style="color:var(--text);font-weight:600">${c.name}</td><td style="color:${tc};font-weight:600">${c.tier}</td><td style="color:var(--green)">${c.clv}</td><td class="mono">${c.points}</td><td>${c.services}</td><td><div class="score-bar-wrap"><div class="score-mini"><div class="score-mini-fill" style="width:${c.eng}%;background:${col}"></div></div><span class="mono" style="font-size:10px;color:${col}">${c.eng}</span></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function s4ResetPipeline(){
+  for(let i=0;i<5;i++){setStep('s4',i,'idle');setSub('s4',i,'—');}
+  ['s4-clv-card','s4-reward-card'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+  ['s4-clv-badge','s4-reward-badge'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('s4-msg').style.display='none';
+  ['s4-custname','s4-tier','s4-clv','s4-points','s4-camptype','s4-reward','s4-service-inc','s4-clv-uplift'].forEach(id=>setVal(id,'—'));
+  ['s4-t1','s4-t2','s4-t3','s4-t4'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+}
+
+async function s4FireEvent(type,name,bonus){
+  if(!s4Selected){showToast('⚠️ Select a customer first','Click a row in the table.','rgba(255,209,102,0.3)');return;}
+  if(pipelineRunning)return;
+  pipelineRunning=true;
+  document.querySelectorAll('[id^=s4-btn]').forEach(b=>b.classList.remove('fired'));
+  event.currentTarget.classList.add('fired');
+  const c=s4Selected;
+  addLog('s4','INFO','SIGNAL',`<strong>💎 ${name}</strong> event for ${c.name}`,'purple');
+  setStep('s4',0,'running');await delay(500);setSub('s4',0,c.tier);setStep('s4',0,'done');
+  addLog('s4','OK','CAPTURE',`Engagement signal captured for <strong>${c.name}</strong> [${c.tier} tier]`,'ok');
+  setStep('s4',1,'running');
+  addLog('s4','AI','CLV','Calculating Customer Lifetime Value...','ai');
+  await delay(700);
+  const newClv='$'+Math.floor(parseInt(c.clv.replace(/[$,]/g,''))*1.15).toLocaleString();
+  addLog('s4','AI','CLV',`Predicted CLV: <strong>${newClv}</strong> (12-month forecast)`,'ai');
+  setSub('s4',1,newClv);setStep('s4',1,'done');
+  setStep('s4',2,'running');
+  addLog('s4','AI','TWIN','Digital Twin matching high-value community...','ai');
+  await delay(600);addLog('s4','AI','TWIN',`Matched community: <strong>${c.tier} Loyalists</strong> (${Math.floor(Math.random()*500+200)} users)`,'ai');
+  setSub('s4',2,'Matched');setStep('s4',2,'done');
+  setStep('s4',3,'running');
+  const tiers={Bronze:0,Silver:1,Gold:2,Platinum:3};
+  const tierIdx=tiers[c.tier]||0;
+  const reward=tierIdx>=2?'Exclusive Platinum Concierge + 5,000 pts':tierIdx>=1?'Gold Tier Upgrade + 2,000 pts':'Silver Upgrade + 1,000 pts';
+  const serviceInc=type==='multi_service'?'Free Cloud Backup 1 Year':type==='referral'?'Referral Bonus — Free Month':type==='milestone'?'Anniversary Gift — Free Roaming Week':'Premium Content Bundle Free';
+  addLog('s4','OK','REWARD',`Reward assigned: <strong>${reward}</strong>`,'ok');
+  setSub('s4',3,reward.split('+')[0].trim());setStep('s4',3,'done');
+  setStep('s4',4,'running');await delay(400);setSub('s4',4,'LAUNCHED');setStep('s4',4,'done');
+  revealCard('s4-clv-card');revealCard('s4-reward-card');
+  showEl('s4-clv-badge');showEl('s4-reward-badge');
+  setVal('s4-custname',c.name);setVal('s4-tier',c.tier);setVal('s4-clv',newClv);
+  setVal('s4-points',c.points+' pts');
+  const tierEls=['s4-t1','s4-t2','s4-t3','s4-t4'];
+  tierEls.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    const pts=['1,000','5,000','15,000','30,000+'];
+    el.querySelector('.tier-pts').textContent=pts[i];
+    setTimeout(()=>el.classList.add('revealed'),i*120);
+    if(i===tierIdx)el.style.border='1px solid '+Object.values(tierColors)[i];
+  });
+  setVal('s4-camptype','Personalized Loyalty Campaign');
+  setVal('s4-reward',reward);setVal('s4-service-inc',serviceInc);setVal('s4-clv-uplift','+15% projected');
+  document.getElementById('s4-msg').style.display='block';
+  document.getElementById('s4-msubj').textContent=`${c.name}, your ${c.tier} rewards are waiting 🎁`;
+  document.getElementById('s4-mbody').textContent=`Hi ${c.name.split(' ')[0]}, thank you for being a loyal ${c.tier} member! We're delighted to offer you ${reward}. Your special gift: ${serviceInc}. Enjoy your exclusive benefits!`;
+  document.getElementById('nav-s4').classList.add('completed');
+  addLog('s4','OK','CAMP',`Loyalty campaign launched for ${c.name}`,'ok');
+  globalStats.run++;globalStats.camp++;globalStats.value+=600;updateGlobalStats();
+  showToast('💎 Loyalty Campaign Launched!',`${reward} offered to ${c.name}`,'rgba(185,110,255,0.3)');
+  pipelineRunning=false;
+}
+
+// ══════════════════════════════════════════════════════
+// SCENARIO 5 DATA & LOGIC
+// ══════════════════════════════════════════════════════
+const s5Campaigns=[
+  {id:'CMP-501',name:'Summer Fiber Push',seg:'Enterprise',channel:'Email',time:'Tue 10am',open:'24%',conv:'4.2%'},
+  {id:'CMP-502',name:'SME Cloud Adoption',seg:'SME',channel:'SMS',time:'Wed 2pm',open:'38%',conv:'6.8%'},
+  {id:'CMP-503',name:'Q4 Upsell Drive',seg:'All',channel:'Push',time:'Mon 9am',open:'19%',conv:'2.1%'},
+  {id:'CMP-504',name:'Loyalty Rewards Push',seg:'Gold+',channel:'Email',time:'Thu 11am',open:'51%',conv:'11.4%'},
+  {id:'CMP-505',name:'Churn Winback',seg:'At-Risk',channel:'SMS+Email',time:'Fri 5pm',open:'43%',conv:'9.1%'},
+  {id:'CMP-506',name:'New IoT Bundle',seg:'SME',channel:'Push+Email',time:'Tue 8am',open:'29%',conv:'5.3%'},
+];
+let s5Selected=null;
+
+function initS5Table(){
+  const tbody=document.getElementById('s5-table');
+  s5Campaigns.forEach((c,i)=>{
+    const convNum=parseFloat(c.conv);
+    const col=convNum>8?'var(--green)':convNum>4?'var(--yellow)':'var(--text3)';
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.onclick=()=>{
+      document.querySelectorAll('#s5-table tr').forEach(r=>r.classList.remove('highlighted'));
+      tr.classList.add('highlighted');
+      s5Selected=c;
+      document.querySelectorAll('[id^=s5-btn]').forEach(b=>b.classList.remove('fired'));
+      s5ResetPipeline();
+      setVal('s5-kpi1',s5Campaigns.length);
+      addLog('s5','INFO','DATA',`Selected campaign: <strong>${c.name}</strong> | Conv: ${c.conv}`,'info');
+    };
+    tr.innerHTML=`<td class="mono">${c.id}</td><td style="color:var(--text);font-weight:600">${c.name}</td><td>${c.seg}</td><td>${c.channel}</td><td>${c.time}</td><td>${c.open}</td><td style="color:${col};font-weight:600">${c.conv}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function s5ResetPipeline(){
+  for(let i=0;i<5;i++){setStep('s5',i,'idle');setSub('s5',i,'—');}
+  ['s5-ab-card','s5-rec-card'].forEach(id=>document.getElementById(id).classList.remove('revealed'));
+  ['s5-ab-badge','s5-rec-badge'].forEach(id=>document.getElementById(id).style.display='none');
+  ['s5-kpi2','s5-kpi3','s5-testname','s5-a-open','s5-a-conv','s5-a-rev','s5-b-open','s5-b-conv','s5-b-rev','s5-winner','s5-segment','s5-channel','s5-time','s5-efficiency','s5-deploy'].forEach(id=>setVal(id,'—'));
+  ['s5-var-a','s5-var-b'].forEach(id=>document.getElementById(id).classList.remove('winner'));
+}
+
+async function s5Action(type,name){
+  if(!s5Selected){showToast('⚠️ Select a campaign first','Click a row in the campaign table.','rgba(255,209,102,0.3)');return;}
+  if(pipelineRunning)return;
+  pipelineRunning=true;
+  document.querySelectorAll('[id^=s5-btn]').forEach(b=>b.classList.remove('fired'));
+  event.currentTarget.classList.add('fired');
+  const c=s5Selected;
+  addLog('s5','INFO','OPT',`<strong>⚡ ${name}</strong> started on ${c.name}`,'warn');
+  setStep('s5',0,'running');await delay(500);setSub('s5',0,'6 campaigns');setStep('s5',0,'done');
+  addLog('s5','OK','DATA',`Historical data ingested: <strong>6 campaigns</strong>, 180 days`,'ok');
+  setStep('s5',1,'running');
+  addLog('s5','AI','EVAL','AI evaluating performance across segments, channels, times...','ai');
+  await delay(800);
+  const bestSeg=s5Campaigns.sort((a,b)=>parseFloat(b.conv)-parseFloat(a.conv))[0];
+  addLog('s5','AI','EVAL',`Best segment: <strong>${bestSeg.seg}</strong> | Best channel: <strong>${bestSeg.channel}</strong>`,'ai');
+  setSub('s5',1,'Evaluated');setStep('s5',1,'done');
+  setStep('s5',2,'running');
+  addLog('s5','AI','ABTEST','Generating A/B test variants...','ai');
+  await delay(600);addLog('s5','AI','ABTEST','Variant A: Feature-led | Variant B: Discount-led','ai');
+  setSub('s5',2,'2 variants');setStep('s5',2,'done');
+  setStep('s5',3,'running');await delay(700);
+  const aOpen=Math.floor(Math.random()*15+30)+'%';
+  const aConv=(Math.random()*3+5).toFixed(1)+'%';
+  const aRev='$'+Math.floor(Math.random()*3000+4000);
+  const bOpen=Math.floor(Math.random()*15+38)+'%';
+  const bConv=(Math.random()*4+8).toFixed(1)+'%';
+  const bRev='$'+Math.floor(Math.random()*4000+6000);
+  addLog('s5','OK','WINNER','Variant B outperforms: higher conversion & revenue','ok');
+  setSub('s5',3,'Variant B wins');setStep('s5',3,'done');
+  setStep('s5',4,'running');await delay(400);setSub('s5',4,'DEPLOYED');setStep('s5',4,'done');
+  revealCard('s5-ab-card');revealCard('s5-rec-card');
+  showEl('s5-ab-badge');showEl('s5-rec-badge');
+  setVal('s5-testname',c.name+' — Optimization Test');
+  setVal('s5-a-open',aOpen);setVal('s5-a-conv',aConv);setVal('s5-a-rev',aRev);
+  setVal('s5-b-open',bOpen);setVal('s5-b-conv',bConv);setVal('s5-b-rev',bRev);
+  document.getElementById('s5-var-b').classList.add('winner');
+  document.getElementById('s5-b-open').className='ab-metric-val green';
+  document.getElementById('s5-b-conv').className='ab-metric-val green';
+  document.getElementById('s5-b-rev').className='ab-metric-val green';
+  setVal('s5-winner','✅ Variant B — Discount-led');
+  setVal('s5-segment',bestSeg.seg+' ('+parseFloat(bestSeg.conv).toFixed(1)+'% conv)');
+  setVal('s5-channel',bestSeg.channel);setVal('s5-time',bestSeg.time);
+  setVal('s5-efficiency','+34% vs manual operations');
+  setVal('s5-deploy','🚀 Auto-deployed to all '+bestSeg.seg+' segments');
+  setVal('s5-kpi2',c.name.substring(0,12)+'…');setVal('s5-kpi3','−34%');
+  document.getElementById('nav-s5').classList.add('completed');
+  addLog('s5','OK','DEPLOY','Winning variant auto-deployed. Budget reallocated.','ok');
+  globalStats.run++;globalStats.camp++;globalStats.value+=1200;updateGlobalStats();
+  showToast('⚡ Campaign Optimized!','Variant B deployed · +34% efficiency gain','rgba(255,209,102,0.3)');
+  pipelineRunning=false;
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+initS1Table();initS2Table();initS3Table();initS4Table();initS5Table();
 </script>
 </body>
 </html>
